@@ -148,7 +148,9 @@ details.income .note,details.income .lbl{color:var(--muted)}
 .ded-row{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) auto auto;gap:6px;align-items:center;padding-block:5px}
 .ded-row input{padding:7px 10px;font-size:14px}
 .inc-row{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) auto}
-.ded-row.off{opacity:.55}
+.ded-row.off>input,.ded-row.off>.pf{opacity:.55}
+.offnote{grid-column:1/-1;font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding-left:6px}
+.offnote .link{color:var(--sky-ink);background:var(--sky-soft);font-weight:600;padding:2px 10px}
 .ded-row select{padding:7px 10px;font-size:13px}
 
 .pf{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);white-space:nowrap}
@@ -577,8 +579,9 @@ import {getAuth,onAuthStateChanged,signInWithPopup,signInWithRedirect,GoogleAuth
 import {initializeFirestore,persistentLocalCache,persistentMultipleTabManager,doc,collection,onSnapshot,getDoc,getDocs,setDoc,writeBatch} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const CONFIGURED=!firebaseConfig.apiKey.startsWith("ใส่");
 (function(){
-const APP_VERSION='1.14.2',APP_DATE='12 ต.ค. 2569';
+const APP_VERSION='1.14.3',APP_DATE='12 ต.ค. 2569';
 const CHANGELOG=[
+  ['1.14.3','แก้บั๊ก: รายได้/รายการหักที่ไม่ได้นับเดือนนี้หายหรือจาง ตอนนี้แสดงทุกรายการ บอกเหตุผล และกด “นับตั้งแต่เดือนนี้” ได้'],
   ['1.14.2','การ์ดสรุปค่าใช้จ่ายกดซ่อน/แสดงได้'],
   ['1.14.1','เอาตัวเลือกเดือนออกจากรายได้อื่นและรายการหัก'],
   ['1.14.0','รายได้อื่นและรายการหักเลือกเฉพาะเดือนหรือทุกเดือนพร้อมเลือกเดือนเริ่ม หมวดเงินเก็บแสดงยอดสะสม ช่องค้นหา และการ์ดสรุปค่าใช้จ่าย'],
@@ -823,6 +826,9 @@ function render(){
   renderNext();
 }
 
+function offNote(d,key,kind){if(active(d,key))return '';
+  const why=d.start&&d.start>key?`เริ่มนับ ${mShort(d.start)}`:d.end?`สิ้นสุด ${mShort(d.end)}`:'ไม่ได้นับเดือนนี้';
+  return `<div class="offnote">${why} · ยังไม่รวมในเดือนนี้ <button type="button" class="link" data-on${kind}="${esc(d.id)}">นับตั้งแต่เดือนนี้</button></div>`;}
 function monthOpts(sel){const ks=[];for(let n=-12;n<=12;n++)ks.push(addM(CUR,n));if(sel&&!ks.includes(sel))ks.push(sel);ks.sort();return ks.map(k=>`<option value="${k}" ${k===sel?'selected':''}>${mLong(k)}</option>`).join('');}
 function modeCtl(d,pre){const once=!!(d.end&&d.end===d.start),i=esc(d.id);
   return `<select aria-label="รูปแบบ" id="${pre}m_${i}" data-k="mode"><option value="once" ${once?'selected':''}>เฉพาะเดือน</option><option value="every" ${!once?'selected':''}>ทุกเดือน เริ่ม</option></select>
@@ -832,21 +838,21 @@ function renderIncome(){
   const xi=incIn(key);
   $('incSummary').textContent=`เงินเดือน ${fmt(st.salary)}${xi.length?` · รายได้อื่น ${fmt(sumA(xi))}`:''} · หัก ${fmt(sumA(ded))} · เข้าบัญชี ${fmt(netIn(key))}`;
   if(!document.activeElement||!document.activeElement.closest||!document.activeElement.closest('#incList'))
-  $('incList').innerHTML=(st.incomes||[]).filter(d=>!d.end||d.end>=key).map(d=>`<div class="ded-row inc-row ${active(d,key)?'':'off'}" data-inc="${esc(d.id)}">
+  $('incList').innerHTML=(st.incomes||[]).map(d=>`<div class="ded-row inc-row ${active(d,key)?'':'off'}" data-inc="${esc(d.id)}">
     <input aria-label="ชื่อรายได้" id="xn_${esc(d.id)}" data-k="name" value="${esc(d.name)}" maxlength="40">
     <input aria-label="จำนวนเงิน" id="xa_${esc(d.id)}" data-k="amount" type="number" min="0" step="0.01" value="${+d.amount||0}">
-    <button class="del" data-delinc="${esc(d.id)}">ลบ</button></div>`).join('')||'<div class="note">ยังไม่มี กด “+ เพิ่มรายได้” เมื่อได้โบนัสหรือรายได้พิเศษ</div>';
+    <button class="del" data-delinc="${esc(d.id)}">ลบ</button>${offNote(d,key,'inc')}</div>`).join('')||'<div class="note">ยังไม่มี กด “+ เพิ่มรายได้” เมื่อได้โบนัสหรือรายได้พิเศษ</div>';
   if(document.activeElement!==$('sSalary'))$('sSalary').value=st.salary||0;
   if(document.activeElement!==$('sPfOpen'))$('sPfOpen').value=st.pfOpening||0;
   const pfm=ded.filter(d=>d.pf);
   $('pfTotal').textContent=fmt(sumA(pfm));const pfc=pfAccum(key);
   $('pfNote').textContent=st.deductions.some(d=>d.pf)?`หักเดือน${mLong(key)} · สะสมทั้งหมดถึงเดือนนี้ ${fmt(pfc)} · ไม่รวมส่วนที่นายจ้างสมทบ`:'ติ๊ก “กองทุน” ที่รายการหัก เพื่อแสดงยอดกองทุนของเดือนนี้';
   if(!document.activeElement||!document.activeElement.closest||!document.activeElement.closest('#dedList'))
-  $('dedList').innerHTML=st.deductions.filter(d=>!d.end||d.end>=key).map(d=>`<div class="ded-row ${active(d,key)?'':'off'}" data-ded="${esc(d.id)}">
+  $('dedList').innerHTML=st.deductions.map(d=>`<div class="ded-row ${active(d,key)?'':'off'}" data-ded="${esc(d.id)}">
     <input aria-label="ชื่อรายการหัก" id="dn_${esc(d.id)}" data-k="name" value="${esc(d.name)}" maxlength="40">
     <input aria-label="บาทต่อเดือน" id="da_${esc(d.id)}" data-k="amount" type="number" min="0" step="0.01" value="${+d.amount||0}">
     <label class="pf"><input type="checkbox" data-k="pf" ${d.pf?'checked':''}>กองทุน</label>
-    <button class="del" data-delded="${esc(d.id)}">ลบ</button></div>`).join('')||'<div class="note">ไม่มีรายการหัก</div>';
+    <button class="del" data-delded="${esc(d.id)}">ลบ</button>${offNote(d,key,'ded')}</div>`).join('')||'<div class="note">ไม่มีรายการหัก</div>';
 }
 
 function renderChips(){
@@ -1334,6 +1340,9 @@ document.addEventListener('click',ev=>{
     state.settings.preorders=state.settings.preorders.filter(x=>x.id!==p.id);saveSettingsQuiet();addLogToMonth(pay,entry);
     toast(`รับสินค้าแล้ว · นับ ${fmt(+p.amt)} เข้าเดือน ${mShort(pay)}`);return;}
   const gt=ev.target.closest('[data-goto]');if(gt){$('search').value='';render();const el=document.querySelector(`[data-cat="${gt.dataset.goto}"]`);el&&el.scrollIntoView({behavior:'smooth',block:'center'});return;}
+  const on=ev.target.closest('[data-oninc],[data-onded]');if(on){
+    const list=on.dataset.oninc?state.settings.incomes:state.settings.deductions,id=on.dataset.oninc||on.dataset.onded,d=list.find(x=>x.id===id);
+    if(d){d.start=state.monthKey;d.end='';saveSettings();toast(`นับ ${d.name} ตั้งแต่${mLong(state.monthKey)}แล้ว`);}return;}
   const mn=ev.target.closest('[data-mnav]');if(mn){shiftMonth(+mn.dataset.mnav);return;}
   const stt=ev.target.closest('[data-stat]');if(stt){
     const w=stt.dataset.stat;
