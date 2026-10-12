@@ -279,6 +279,18 @@ details.income .note,details.income .lbl{color:var(--muted)}
 .login-feats span{font-size:12px;background:var(--accent-soft);border-radius:999px;padding:3px 12px}
 body.signed-out .login{display:grid}
 body.signed-out .wrap,body.signed-out .bnav{display:none}
+.owing{padding:18px;display:grid;gap:12px;background:radial-gradient(140px 140px at 100% 0%,var(--blob1),transparent 70%),var(--card)}
+.owing-h{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:10px}
+.owing-h h2{font-size:18px}
+.owing-tot{text-align:right}
+.owing-tot b{display:block;font-family:var(--f-num);font-weight:700;font-size:24px;font-variant-numeric:tabular-nums}
+.owing-warn{background:var(--blob6);border-radius:16px;padding:8px 12px;font-size:13px}
+.owing-list{display:grid;gap:6px}
+.owing-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 10px;border-radius:18px;background:var(--field)}
+.owing-amt{text-align:right;white-space:nowrap}
+.owing-amt b{font-family:var(--f-num);font-weight:700;font-size:16px;display:block}
+.owing-amt small{font-size:11px;color:var(--muted)}
+@media (max-width:480px){.owing-row{grid-template-columns:auto minmax(0,1fr)}.owing-amt{grid-column:2;text-align:left}}
 .appfoot{text-align:center;font-size:12px;color:var(--muted);display:grid;gap:8px;justify-items:center}
 .ver{display:inline-flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--edge);border-radius:999px;padding:4px 12px;font-family:var(--f-num);font-weight:600}
 details.changes{width:min(560px,100%);text-align:left}
@@ -475,8 +487,9 @@ import {getAuth,onAuthStateChanged,signInWithPopup,signInWithRedirect,GoogleAuth
 import {initializeFirestore,persistentLocalCache,persistentMultipleTabManager,doc,collection,onSnapshot,getDoc,getDocs,setDoc,writeBatch} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const CONFIGURED=!firebaseConfig.apiKey.startsWith("ใส่");
 (function(){
-const APP_VERSION='1.6.0',APP_DATE='12 ต.ค. 2569';
+const APP_VERSION='1.7.0',APP_DATE='12 ต.ค. 2569';
 const CHANGELOG=[
+  ['1.7.0','สรุปผ่อนที่ยังต้องจ่าย รวมรายการต่อจากเดือนก่อน ยอดคงเหลือ และเตือนงวดเดือนก่อนที่ยังไม่ได้ติ๊กจ่าย'],
   ['1.6.0','ธีมพาสเทลพีช น้องแมวดำ ไอคอนดูเดิลประจำหมวด หน้า Login และแถบเมนูบนมือถือ'],
   ['1.5.0','บันทึกเวลาของรายการ วันสรุปยอดและวันครบชำระแยกตามช่องทาง'],
   ['1.4.0','เชื่อม Firebase ล็อกอินด้วย Google ใช้ได้ทุกเครื่อง สำรองและนำเข้าข้อมูล'],
@@ -732,9 +745,9 @@ function updateQuickForm(){
 function ensurePrev(){
   const pk=addM(state.monthKey,-1);
   if(state.prevLogs.key===pk||state.prevLoading===pk)return;
-  if(!backend||!canSave()){state.prevLogs={key:pk,logs:[]};return;}
+  if(!backend||!canSave()){state.prevLogs={key:pk,logs:[],paid:null,exists:false};return;}
   state.prevLoading=pk;
-  backend.getMonth(pk).then(d=>{state.prevLoading=null;if(addM(state.monthKey,-1)!==pk)return;state.prevLogs={key:pk,logs:d.logs||[]};render();});
+  backend.getMonth(pk).then(d=>{state.prevLoading=null;if(addM(state.monthKey,-1)!==pk)return;state.prevLogs={key:pk,logs:d.logs||[],paid:d.paid||null,exists:!!(d.logs||d.paid)};render();});
 }
 function billInfo(c,key){
   const cut=Math.round(+c.cutoff||0);if(!(cut>=1&&cut<=31))return null;
@@ -789,15 +802,35 @@ function doodleSVG(k,size){const d=DOODLES[k]||DOODLES.sparkle;return `<svg view
 
 function catIcon(c){return doodleSVG(doodleKey(c),34);}
 function catTotal(c,key){return sumA(c.items.filter(it=>active(it,key)))+sumL(state.logs.filter(l=>l.cat===c.id));}
+function owingHTML(key){
+  const list=itemsIn(key,isInst).filter(it=>it.end);
+  if(!list.length)return '';
+  const pk=addM(key,-1),pv=state.prevLogs.key===pk?state.prevLogs:null;
+  const rows=list.map(it=>{const ii=instInfo(it,key),paid=state.paid.includes(it.id),remN=ii.left+(paid?0:1);
+    return {it,ii,paid,remN,remAmt:r2(remN*(+it.amount||0)),started:it.start<key};}).sort((a,b)=>a.it.end.localeCompare(b.it.end)||b.remAmt-a.remAmt);
+  const total=rows.reduce((a,r)=>a+r.remAmt,0),fromPrev=rows.filter(r=>r.started);
+  const missed=pv&&pv.exists&&Array.isArray(pv.paid)?itemsIn(pk,isInst).filter(it=>!pv.paid.includes(it.id)):[];
+  return `<section class="card owing" aria-label="ผ่อนที่ยังเหลืออยู่">
+    <div class="owing-h"><div><h2>ผ่อนที่ยังต้องจ่าย</h2><div class="note">${rows.length} รายการ · ต่อจากเดือนก่อน ${fromPrev.length} รายการ · นับรวมงวดเดือนนี้ถ้ายังไม่ติ๊กจ่าย</div></div>
+      <div class="owing-tot"><span class="lbl">ยอดคงเหลือทั้งหมด</span><b>${fmt(total)}</b></div></div>
+    ${missed.length?`<div class="owing-warn">${mShort(pk)} ยังไม่ได้ติ๊กจ่าย: ${missed.map(it=>`<b>${esc(it.name)}</b> ${fmt(+it.amount)}`).join(' · ')}</div>`:''}
+    <div class="owing-list">${rows.map(r=>`<div class="owing-row" style="--c:var(--s${r.it.cat.color||8})">
+      <span class="ic" aria-hidden="true">${catIcon(r.it.cat)}</span>
+      <div style="min-width:0"><div class="r-name">${esc(r.it.name)} <span class="note">· ${esc(r.it.cat.name)}</span></div>
+        <div class="r-sub"><span>${r.started?'ผ่อนต่อจาก '+mShort(r.it.start):'<span class="tag new">เริ่มเดือนนี้</span>'}</span><span>งวด ${r.ii.n}/${r.ii.total}</span><span>จบ ${mShort(r.it.end)}</span>${r.paid?'<span class="tag" style="background:var(--blob3)">เดือนนี้จ่ายแล้ว</span>':''}</div>
+        <div class="bar" style="height:6px;margin-top:4px"><i style="width:${(r.ii.n-(r.paid?0:1))/r.ii.total*100}%;background:var(--c)"></i></div></div>
+      <div class="owing-amt"><b>${fmt(r.remAmt)}</b><small>${r.remN?`อีก ${r.remN} งวด × ${fmt(+r.it.amount)}`:'ผ่อนครบแล้ว'}</small></div></div>`).join('')}</div>
+  </section>`;
+}
 function renderGroups(){
   const key=state.monthKey;
-  if(state.settings.cats.some(c=>+c.cutoff>0))ensurePrev();
+  ensurePrev();
   $('groups').innerHTML=Object.entries(GROUPS).map(([g,name])=>{
     const cats=state.settings.cats.filter(c=>c.group===g);if(!cats.length)return '';
     const tot=cats.reduce((a,c)=>a+catTotal(c,key),0);
     let extra='';
     if(g==='installment'){const n=itemsIn(key,isInst).filter(it=>it.end===key).length;if(n)extra=` · จบเดือนนี้ ${n} รายการ`;}
-    return `<section class="group" aria-label="${name}"><div class="group-h"><h2>${name}</h2><span class="note"><span class="num">${fmt(tot)}</span>${extra}</span></div><div class="envs">${cats.map(c=>envelope(c,key)).join('')}</div></section>`;
+    return (g==='installment'?owingHTML(key):'')+`<section class="group" aria-label="${name}"><div class="group-h"><h2>${name}</h2><span class="note"><span class="num">${fmt(tot)}</span>${extra}</span></div><div class="envs">${cats.map(c=>envelope(c,key)).join('')}</div></section>`;
   }).join('')||'<div class="note">ยังไม่มีหมวด เพิ่มได้จากช่องจดรายจ่ายด้านบน</div>';
 }
 function itemForm(it){
