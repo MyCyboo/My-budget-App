@@ -145,10 +145,10 @@ details.income .note,details.income .lbl{color:var(--muted)}
 .inc-body{display:grid;gap:14px;padding-top:12px}
 .inc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
 .inc-body input{background:var(--card)}
-.ded-row{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) auto auto;gap:6px;align-items:center;padding-block:5px}
+.ded-row{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1.3fr) auto auto;gap:6px;align-items:center;padding-block:5px}
 .ded-row input{padding:7px 10px;font-size:14px}
 .inc-row{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1.3fr) auto}
-@media (max-width:560px){.inc-row{grid-template-columns:1fr 1fr}.inc-row select{grid-column:1/-1}}
+@media (max-width:560px){.ded-row,.inc-row{grid-template-columns:1fr 1fr}.ded-row select,.inc-row select{grid-column:1/-1}}
 .pf{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);white-space:nowrap}
 .pf input{width:auto;accent-color:var(--s3)}
 .pfbox{background:color-mix(in srgb,var(--blob3) 70%,var(--card));border-radius:20px;padding:12px 16px;display:grid;gap:4px}
@@ -430,7 +430,7 @@ details.changes summary::-webkit-details-marker{display:none}
       <div class="inc-body">
         <div class="inc-grid">
           <div class="field"><label for="sSalary">เงินเดือน (หลังหักภาษีแล้ว)</label><input id="sSalary" type="number" min="0" step="100" class="num"></div>
-          <div class="pfbox"><span class="lbl">กองทุนสำรองเลี้ยงชีพสะสม (ส่วนที่หักจากคุณ)</span><b id="pfTotal">฿0</b><span class="note" id="pfNote"></span></div>
+          <div class="pfbox"><span class="lbl">กองทุนสำรองเลี้ยงชีพ เดือนนี้ (ส่วนที่หักจากคุณ)</span><b id="pfTotal">฿0</b><span class="note" id="pfNote"></span></div>
         </div>
         <div>
           <div class="lbl" style="margin-bottom:4px">รายได้อื่น (เช่น โบนัส OT รายได้เสริม)</div>
@@ -442,7 +442,7 @@ details.changes summary::-webkit-details-marker{display:none}
           <div id="dedList"></div>
           <button class="btn ghost sm" data-act="addded" style="margin-top:8px">+ เพิ่มรายการหัก</button>
         </div>
-        <div class="field" style="max-width:280px"><label for="sPfOpen">ยอดกองทุนฯ สะสมก่อนหน้า (ถ้ามี)</label><input id="sPfOpen" type="number" min="0" step="100" class="num"></div>
+        <div class="field" style="max-width:280px" hidden><label for="sPfOpen">ยอดกองทุนฯ สะสมก่อนหน้า (ถ้ามี)</label><input id="sPfOpen" type="number" min="0" step="100" class="num"></div>
       </div>
     </details>
   </section>
@@ -551,8 +551,9 @@ import {getAuth,onAuthStateChanged,signInWithPopup,signInWithRedirect,GoogleAuth
 import {initializeFirestore,persistentLocalCache,persistentMultipleTabManager,doc,collection,onSnapshot,getDoc,getDocs,setDoc,writeBatch} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const CONFIGURED=!firebaseConfig.apiKey.startsWith("ใส่");
 (function(){
-const APP_VERSION='1.13.2',APP_DATE='12 ต.ค. 2569';
+const APP_VERSION='1.13.3',APP_DATE='12 ต.ค. 2569';
 const CHANGELOG=[
+  ['1.13.3','กองทุนสำรองฯ แสดงยอดเฉพาะเดือนที่เลือก รายการหักเลือกได้ว่าเฉพาะเดือนนี้หรือทุกเดือน'],
   ['1.13.2','เอาตัวเลือกเดือนมุมขวาบนออก ใช้ตัวเลือกเดือนในการ์ดยอดคงเหลือแทน'],
   ['1.13.1','แสดงเดือนในการ์ดยอดคงเหลือ เลื่อนเดือนได้จากการ์ด และบอกยอดที่ซื้อเดือนนี้แต่ไปหักเดือนหน้า'],
   ['1.13.0','แตะตัวเลขในการ์ดยอดคงเหลือเพื่อแก้ไขหรือเพิ่มได้ทันที และเพิ่มรายได้อื่น เช่น โบนัส OT รายได้เสริม'],
@@ -805,12 +806,14 @@ function renderIncome(){
     <button class="del" data-delinc="${esc(d.id)}">ลบ</button></div>`).join('')||'<div class="note">ยังไม่มี กด “+ เพิ่มรายได้” เมื่อได้โบนัสหรือรายได้พิเศษ</div>';
   if(document.activeElement!==$('sSalary'))$('sSalary').value=st.salary||0;
   if(document.activeElement!==$('sPfOpen'))$('sPfOpen').value=st.pfOpening||0;
-  $('pfTotal').textContent=fmt(pfAccum(key));
-  const pfs=st.deductions.filter(d=>d.pf);
-  $('pfNote').textContent=pfs.length?`ถึงสิ้น${mLong(key)} · ไม่รวมส่วนที่นายจ้างสมทบ`:'ติ๊ก “กองทุน” ที่รายการหักเพื่อให้นับยอดสะสม';
-  $('dedList').innerHTML=st.deductions.map(d=>`<div class="ded-row" data-ded="${esc(d.id)}">
+  const pfm=ded.filter(d=>d.pf);
+  $('pfTotal').textContent=fmt(sumA(pfm));
+  $('pfNote').textContent=st.deductions.some(d=>d.pf)?`หักเดือน${mLong(key)} · ไม่รวมส่วนที่นายจ้างสมทบ`:'ติ๊ก “กองทุน” ที่รายการหัก เพื่อแสดงยอดกองทุนของเดือนนี้';
+  if(!document.activeElement||!document.activeElement.closest||!document.activeElement.closest('#dedList'))
+  $('dedList').innerHTML=st.deductions.filter(d=>!d.end||d.end>=key).map(d=>`<div class="ded-row" data-ded="${esc(d.id)}">
     <input aria-label="ชื่อรายการหัก" id="dn_${esc(d.id)}" data-k="name" value="${esc(d.name)}" maxlength="40">
     <input aria-label="บาทต่อเดือน" id="da_${esc(d.id)}" data-k="amount" type="number" min="0" step="0.01" value="${+d.amount||0}">
+    <select aria-label="หักเมื่อไหร่" id="dm_${esc(d.id)}" data-k="mode"><option value="once" ${d.end&&d.end===d.start?'selected':''}>เฉพาะ ${mShort(d.start&&d.end===d.start?d.start:key)}</option><option value="every" ${!(d.end&&d.end===d.start)?'selected':''}>ทุกเดือน${d.start?' ตั้งแต่ '+mShort(d.start):''}</option></select>
     <label class="pf"><input type="checkbox" data-k="pf" ${d.pf?'checked':''}>กองทุน</label>
     <button class="del" data-delded="${esc(d.id)}">ลบ</button></div>`).join('')||'<div class="note">ไม่มีรายการหัก</div>';
 }
@@ -1198,7 +1201,8 @@ $('dedList').addEventListener('change',ev=>{
   const row=ev.target.closest('[data-ded]');if(!row)return;const d=state.settings.deductions.find(x=>x.id===row.dataset.ded);if(!d)return;
   const k=ev.target.dataset.k;
   if(k==='name')d.name=ev.target.value.trim()||d.name;else if(k==='amount')d.amount=Math.max(0,r2(ev.target.value));else if(k==='pf')d.pf=ev.target.checked;
-  saveSettingsQuiet();if(k==='pf')render();
+  else if(k==='mode'){if(ev.target.value==='once'){d.start=state.monthKey;d.end=state.monthKey;}else{d.end='';if(!d.start)d.start=state.monthKey;}}
+  saveSettingsQuiet();setTimeout(render,0);
 });
 document.addEventListener('focusout',()=>{setTimeout(()=>{if(deferred&&!isEditingFocus())render();},0);});
 
@@ -1297,7 +1301,7 @@ document.addEventListener('click',ev=>{
     case 'newcat':$('newCatForm').hidden=false;$('ncName').focus();break;
     case 'closenewcat':$('newCatForm').hidden=true;break;
     case 'addinc':state.settings.incomes.push({id:uid(),name:'รายได้เสริม',amount:0,start:state.monthKey,end:state.monthKey});saveSettings();{const el=document.querySelector('#incList .inc-row:last-child input');el&&(el.focus(),el.select());}break;
-    case 'addded':state.settings.deductions.push({id:uid(),name:'รายการหัก',amount:0,start:state.monthKey,end:''});saveSettings();{const el=document.querySelector('#dedList .ded-row:last-child input');el&&(el.focus(),el.select());}break;
+    case 'addded':state.settings.deductions.push({id:uid(),name:'รายการหัก',amount:0,start:state.monthKey,end:state.monthKey});saveSettings();{const el=document.querySelector('#dedList .ded-row:last-child input');el&&(el.focus(),el.select());}break;
   }
 });
 
