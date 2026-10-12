@@ -531,8 +531,12 @@ import {getAuth,onAuthStateChanged,signInWithPopup,signInWithRedirect,GoogleAuth
 import {initializeFirestore,persistentLocalCache,persistentMultipleTabManager,doc,collection,onSnapshot,getDoc,getDocs,setDoc,writeBatch} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const CONFIGURED=!firebaseConfig.apiKey.startsWith("ใส่");
 (function(){
-const APP_VERSION='1.12.2',APP_DATE='12 ต.ค. 2569';
+const APP_VERSION='1.12.6',APP_DATE='12 ต.ค. 2569';
 const CHANGELOG=[
+  ['1.12.6','งวดสุดท้ายแสดงวันที่ต่อท้ายด้วย'],
+  ['1.12.5','แสดงวันจบผ่อนเป็นวันที่เต็มเสมอ (ใช้วันที่ซื้อถ้าหมวดยังไม่ได้ตั้งวันครบชำระ)'],
+  ['1.12.4','รายการผ่อนแสดงแค่ งวดที่/ทั้งหมด กับวันจบ หรือคำว่างวดสุดท้าย'],
+  ['1.12.3','วันจบผ่อนแสดงเป็นวัน-เดือน-ปี ตามวันครบชำระของหมวด'],
   ['1.12.2','เปลี่ยนเป็นฟอนต์ไทยแบบมีหัว'],
   ['1.12.1','พื้นหลังโทนฟ้าอ่อนแบบภาพอ้างอิง'],
   ['1.12.0','ฟอร์มผ่อนกระชับ: ช่องวันที่สั่ง/ได้รับของช่องเดียว ช่องงวดแรก–งวดสุดท้าย เอาคำชี้แจงใต้ฟอร์มออก และเพิ่มโทนสีฟ้า'],
@@ -805,12 +809,13 @@ function updateQuickForm(){
     sel.disabled=pend;
     const n=Math.max(1,Math.round(+$('iCount').value||1)),p=+$('iPrin').value||0,r=+$('iRate').value||0;
     const first=sel.value||pi.month;
-    $('iLast').textContent=pend?'– รอรับของ':'– '+mShort(addM(first,n-1));
+    $('iLast').textContent=pend?'– รอรับของ':'– '+dueFull(c2,addM(first,n-1),{buyDate:bd});
     $('iMonthly').placeholder=p>0?fmt(instMonthly(p,n,r)):'คำนวณให้';
     pv.hidden=true;
   }else pv.hidden=true;
 }
 
+function dueFull(c,k,it){let d=Math.round(+(c&&c.due)||0);if(!(d>=1&&d<=31))d=it&&(it.recvDate||it.buyDate)?+(it.recvDate||it.buyDate).slice(8):0;if(!(d>=1&&d<=31))d=1;return new Date(dayOf(k,d)+'T00:00:00').toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'});}
 function payInfo(c,date){
   const m=date.slice(0,7),cut=Math.round(+(c&&c.cutoff)||0);
   if(!(cut>=1&&cut<=31))return {month:m,due:null,stmt:null};
@@ -903,7 +908,7 @@ function owingHTML(key){
     <div class="owing-list">${rows.map(r=>`<div class="owing-row" style="--c:var(--s${r.it.cat.color||8})">
       <span class="ic" aria-hidden="true">${catIcon(r.it.cat)}</span>
       <div style="min-width:0"><div class="r-name">${esc(r.it.name)} <span class="note">· ${esc(r.it.cat.name)}</span></div>
-        <div class="r-sub"><span>${r.started?'ผ่อนต่อจาก '+mShort(r.it.start):'<span class="tag new">เริ่มเดือนนี้</span>'}</span><span>งวด ${r.ii.n}/${r.ii.total}</span><span>จบ ${mShort(r.it.end)}</span>${r.paid?'<span class="tag" style="background:var(--blob3)">เดือนนี้จ่ายแล้ว</span>':''}</div>
+        <div class="r-sub"><span>${r.started?'ผ่อนต่อจาก '+mShort(r.it.start):'<span class="tag new">เริ่มเดือนนี้</span>'}</span>${r.ii.left===0?`<span><b>${r.ii.n}/${r.ii.total}</b> · ${dueFull(r.it.cat,r.it.end,r.it)}</span><span class="tag last">งวดสุดท้าย</span>`:`<span><b>${r.ii.n}/${r.ii.total}</b> · ${dueFull(r.it.cat,r.it.end,r.it)}</span>`}${r.paid?'<span class="tag" style="background:var(--blob3)">เดือนนี้จ่ายแล้ว</span>':''}</div>
         <div class="bar" style="height:6px;margin-top:4px"><i style="width:${(r.ii.n-(r.paid?0:1))/r.ii.total*100}%;background:var(--c)"></i></div></div>
       <div class="owing-amt"><b>${fmt(r.remAmt)}</b><small>${r.remN?`อีก ${r.remN} งวด × ${fmt(+r.it.amount)}`:'ผ่อนครบแล้ว'}</small></div></div>`).join('')}</div>
   </section>`;
@@ -980,9 +985,7 @@ function envelope(c,key){
       let s='';
       if(ii){
         if(ii.total<=24)s+=`<span class="ticks" aria-hidden="true">${Array.from({length:ii.total},(_,j)=>`<i class="${j<ii.n-1?'done':j===ii.n-1?'now':''}"></i>`).join('')}</span>`;
-        if(it.buyDate)s+=`<span class="paytag">${it.recvDate?'รับของ '+dShort(it.recvDate):'ซื้อ '+dShort(it.buyDate)}</span>`;
-        s+=`<span>${mShort(it.start)} – ${mShort(it.end)}</span>`;
-        s+=`<span>งวด ${ii.n}/${ii.total}</span>`+(ii.left===0?'<span class="tag last">งวดสุดท้าย</span>':`<span>อีก ${ii.left} งวด · จบ ${mShort(it.end)}</span>`);
+        s+=ii.left===0?`<span><b>${ii.n}/${ii.total}</b> · ${dueFull(c,it.end,it)}</span><span class="tag last">งวดสุดท้าย</span>`:`<span><b>${ii.n}/${ii.total}</b> · ${dueFull(c,it.end,it)}</span>`;
         if(+it.rate>0)s+=`<span>ดอกเบี้ย ${+it.rate}%/ด.</span>`;
       }else s+=it.end?`<span>ถึง ${mShort(it.end)}</span>`:'<span>ทุกเดือน</span>';
       if(it.start===key)s+='<span class="tag new">เริ่มเดือนนี้</span>';
