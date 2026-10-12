@@ -97,6 +97,7 @@ input[type=number]{font-family:var(--f-num);font-weight:600}
 .brand{display:flex;align-items:center;gap:10px}
 .brand .logo{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:var(--accent-soft)}
 .brand h1{font-size:22px}
+.top .monthnav{display:none!important}
 .monthnav{display:flex;align-items:center;gap:4px;background:var(--card);border-radius:999px;padding:5px;box-shadow:var(--shadow)}
 .monthnav button{border:0;background:var(--field);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:17px;line-height:1}
 .monthnav button:hover{background:var(--sky-soft);color:var(--sky-ink)}
@@ -109,6 +110,13 @@ input[type=number]{font-family:var(--f-num);font-weight:600}
   background:radial-gradient(60% 90% at 90% 10%,var(--blob6) 0,transparent 60%),linear-gradient(150deg,var(--blob1) 0%,var(--blob2) 45%,var(--sky-soft) 80%,color-mix(in srgb,var(--sky) 45%,var(--sky-soft)) 100%)}
 .balance>*{position:relative;z-index:1}
 .balance .lbl,.balance .note{color:var(--hero-dim)}
+.hero-month{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.hero-month span#heroMonth{font-family:var(--f-display);font-weight:700;font-size:20px;background:var(--hero-tile);border:1px solid var(--edge);border-radius:999px;padding:4px 16px}
+.hero-month button{border:0;width:32px;height:32px;border-radius:50%;background:var(--hero-tile);cursor:pointer;font-size:16px;color:var(--hero-ink)}
+.hero-month button:hover{background:var(--solid)}
+.hero-now{font-size:12px;font-weight:600;color:var(--sky-ink);background:var(--sky-soft);border-radius:999px;padding:2px 10px}
+.hero-now:empty{display:none}
+.hero-defer{margin-top:6px;font-size:13px;background:var(--hero-tile);border:1px solid var(--edge);border-radius:14px;padding:6px 12px;display:inline-block}
 .bal-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px}
 .bal-big{font-family:var(--f-num);font-weight:700;font-size:clamp(38px,8vw,56px);line-height:1.05;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
 .bal-big.neg{color:var(--bad)}
@@ -126,7 +134,10 @@ input[type=number]{font-family:var(--f-num);font-weight:600}
 .legend span{display:inline-flex;gap:6px;align-items:center}
 .sw{width:10px;height:10px;border-radius:50%;display:inline-block}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
-.stats div{display:grid;gap:2px;background:var(--hero-tile);border-radius:18px;padding:10px 14px;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border:1px solid var(--edge)}
+.stats .stat{border:1px solid var(--edge);text-align:left;cursor:pointer;font:inherit;color:inherit;transition:transform .12s,box-shadow .12s}
+.stats .stat:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.pen{font-style:normal;font-size:11px;font-weight:600;color:var(--sky-ink);background:var(--sky-soft);border-radius:999px;padding:0 7px;margin-left:4px}
+.stats div,.stats .stat{display:grid;gap:2px;background:var(--hero-tile);border-radius:18px;padding:10px 14px;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border:1px solid var(--edge)}
 .stats b{font-family:var(--f-num);font-weight:700;font-variant-numeric:tabular-nums;font-size:18px}
 details.income{background:var(--hero-tile);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:var(--ink);border-radius:22px;padding:10px 16px}
 details.income summary{cursor:pointer;font-weight:600;font-size:14px;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline}
@@ -136,6 +147,8 @@ details.income .note,details.income .lbl{color:var(--muted)}
 .inc-body input{background:var(--card)}
 .ded-row{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) auto auto;gap:6px;align-items:center;padding-block:5px}
 .ded-row input{padding:7px 10px;font-size:14px}
+.inc-row{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1.3fr) auto}
+@media (max-width:560px){.inc-row{grid-template-columns:1fr 1fr}.inc-row select{grid-column:1/-1}}
 .pf{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);white-space:nowrap}
 .pf input{width:auto;accent-color:var(--s3)}
 .pfbox{background:color-mix(in srgb,var(--blob3) 70%,var(--card));border-radius:20px;padding:12px 16px;display:grid;gap:4px}
@@ -385,11 +398,13 @@ details.changes summary::-webkit-details-marker{display:none}
   <div id="errBox" class="err" hidden></div>
 
   <section class="card balance" aria-label="สรุปยอดเดือนนี้">
+    <div class="hero-month"><button type="button" data-mnav="-1" aria-label="เดือนก่อน">‹</button><span id="heroMonth"></span><button type="button" data-mnav="1" aria-label="เดือนถัดไป">›</button><span class="hero-now" id="heroNow"></span></div>
     <div class="bal-head">
       <div>
-        <div class="lbl">ยอดคงเหลือใช้ได้</div>
+        <div class="lbl" id="balLbl">ยอดคงเหลือใช้ได้</div>
         <div class="bal-big" id="balBig">฿0</div>
-        <div class="note">เงินเข้าบัญชี หักผ่อน ค่าประจำ และรายจ่ายที่จดแล้ว</div>
+        <div class="note" id="balNote">เงินเข้าบัญชี หักทุกอย่างที่ต้องจ่ายภายในเดือนนี้</div>
+        <div class="hero-defer" id="heroDefer" hidden></div>
       </div>
       <div class="bal-side">
       <div class="hero-mood" id="heroMood"></div>
@@ -405,17 +420,22 @@ details.changes summary::-webkit-details-marker{display:none}
       <div class="legend" style="margin-top:8px"><span><i class="sw" style="background:var(--hero-commit)"></i>ผ่อน + ค่าประจำ</span><span><i class="sw" style="background:var(--hero-spend)"></i>จ่ายครั้งเดียว</span><span><i class="sw" style="background:var(--hero-track)"></i>ยังเหลือ</span></div>
     </div>
     <div class="stats">
-      <div><span class="lbl">เข้าบัญชีจริง</span><b id="stNet">฿0</b></div>
-      <div><span class="lbl">ผ่อนชำระ</span><b id="stInst">฿0</b></div>
-      <div><span class="lbl">ค่าประจำ</span><b id="stFixed">฿0</b></div>
-      <div><span class="lbl">จ่ายครั้งเดียว</span><b id="stLog">฿0</b></div>
+      <button type="button" class="stat" data-stat="income"><span class="lbl">เข้าบัญชีจริง <i class="pen">✎ แก้ไข</i></span><b id="stNet">฿0</b></button>
+      <button type="button" class="stat" data-stat="installment"><span class="lbl">ผ่อนชำระ <i class="pen">+ เพิ่ม</i></span><b id="stInst">฿0</b></button>
+      <button type="button" class="stat" data-stat="recurring"><span class="lbl">ค่าประจำ <i class="pen">+ เพิ่ม</i></span><b id="stFixed">฿0</b></button>
+      <button type="button" class="stat" data-stat="once"><span class="lbl">จ่ายครั้งเดียว <i class="pen">+ เพิ่ม</i></span><b id="stLog">฿0</b></button>
     </div>
     <details class="income" id="incomeBox">
-      <summary>รายได้และรายการหักจากเงินเดือน <span class="note" id="incSummary"></span></summary>
+      <summary>รายได้และรายการหักจากเงินเดือน <span class="note" id="incSummary"></span><i class="pen">✎ เพิ่ม / แก้ไข</i></summary>
       <div class="inc-body">
         <div class="inc-grid">
           <div class="field"><label for="sSalary">เงินเดือน (หลังหักภาษีแล้ว)</label><input id="sSalary" type="number" min="0" step="100" class="num"></div>
           <div class="pfbox"><span class="lbl">กองทุนสำรองเลี้ยงชีพสะสม (ส่วนที่หักจากคุณ)</span><b id="pfTotal">฿0</b><span class="note" id="pfNote"></span></div>
+        </div>
+        <div>
+          <div class="lbl" style="margin-bottom:4px">รายได้อื่น (เช่น โบนัส OT รายได้เสริม)</div>
+          <div id="incList"></div>
+          <button class="btn ghost sm" data-act="addinc" style="margin-top:8px">+ เพิ่มรายได้</button>
         </div>
         <div>
           <div class="lbl" style="margin-bottom:4px">หักก่อนเข้าบัญชี</div>
@@ -531,8 +551,11 @@ import {getAuth,onAuthStateChanged,signInWithPopup,signInWithRedirect,GoogleAuth
 import {initializeFirestore,persistentLocalCache,persistentMultipleTabManager,doc,collection,onSnapshot,getDoc,getDocs,setDoc,writeBatch} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const CONFIGURED=!firebaseConfig.apiKey.startsWith("ใส่");
 (function(){
-const APP_VERSION='1.12.6',APP_DATE='12 ต.ค. 2569';
+const APP_VERSION='1.13.2',APP_DATE='12 ต.ค. 2569';
 const CHANGELOG=[
+  ['1.13.2','เอาตัวเลือกเดือนมุมขวาบนออก ใช้ตัวเลือกเดือนในการ์ดยอดคงเหลือแทน'],
+  ['1.13.1','แสดงเดือนในการ์ดยอดคงเหลือ เลื่อนเดือนได้จากการ์ด และบอกยอดที่ซื้อเดือนนี้แต่ไปหักเดือนหน้า'],
+  ['1.13.0','แตะตัวเลขในการ์ดยอดคงเหลือเพื่อแก้ไขหรือเพิ่มได้ทันที และเพิ่มรายได้อื่น เช่น โบนัส OT รายได้เสริม'],
   ['1.12.6','งวดสุดท้ายแสดงวันที่ต่อท้ายด้วย'],
   ['1.12.5','แสดงวันจบผ่อนเป็นวันที่เต็มเสมอ (ใช้วันที่ซื้อถ้าหมวดยังไม่ได้ตั้งวันครบชำระ)'],
   ['1.12.4','รายการผ่อนแสดงแค่ งวดที่/ทั้งหมด กับวันจบ หรือคำว่างวดสุดท้าย'],
@@ -657,7 +680,7 @@ let backend=null,deferred=false;
 
 function norm(s){
   if(s.salary==null)s.salary=+s.income||0;delete s.income;
-  s.salary=+s.salary||0;s.pfOpening=+s.pfOpening||0;s.deductions=s.deductions||[];s.preorders=s.preorders||[];
+  s.salary=+s.salary||0;s.pfOpening=+s.pfOpening||0;s.deductions=s.deductions||[];s.preorders=s.preorders||[];s.incomes=s.incomes||[];
   s.cats=(s.cats||[]).map(c=>({budget:0,...c,items:(c.items||[]).map(it=>({type:c.group==='installment'?'installment':'recurring',...it}))}));
   return s;
 }
@@ -715,15 +738,17 @@ const catById=id=>state.settings.cats.find(c=>c.id===id);
 function itemsIn(key,f){const out=[];state.settings.cats.forEach(c=>c.items.forEach(it=>{if(active(it,key)&&(!f||f(it,c)))out.push({...it,cat:c});}));return out;}
 const isInst=it=>it.type==='installment';
 function dedIn(key){return state.settings.deductions.filter(d=>active(d,key));}
-function netIn(key){return state.settings.salary-sumA(dedIn(key));}
+function incIn(key){return (state.settings.incomes||[]).filter(d=>active(d,key));}
+function netIn(key){return state.settings.salary+sumA(incIn(key))-sumA(dedIn(key));}
 function instInfo(it,key){if(!isInst(it)||!it.end)return null;const total=idx(it.end)-idx(it.start)+1,n=idx(key)-idx(it.start)+1;return {total,n,left:total-n};}
 function daysInfo(){const [y,m]=state.monthKey.split('-').map(Number);const dim=new Date(y,m,0).getDate();
   if(state.monthKey===CUR)return {left:dim-today.getDate()+1,kind:'cur'};return state.monthKey>CUR?{left:dim,kind:'future'}:{left:0,kind:'past'};}
 function pfAccum(key){let t=state.settings.pfOpening;state.settings.deductions.filter(d=>d.pf).forEach(d=>{const e=d.end&&d.end<key?d.end:key;if(d.start&&d.start<=e)t+=(idx(e)-idx(d.start)+1)*(+d.amount||0);});return t;}
 
 /* ---------- render ---------- */
-function isEditingFocus(){const a=document.activeElement;return a&&a.closest&&(a.tagName==='INPUT'||a.tagName==='SELECT')&&a.closest('.subform,#dedList,#incomeBox');}
+function isEditingFocus(){const a=document.activeElement;return a&&a.closest&&(a.tagName==='INPUT'||a.tagName==='SELECT')&&a.closest('.subform,#dedList,#incList,#incomeBox');}
 function render(){
+  if(state.settings&&state.mode!=='loading')ensureAhead();
   if(!state.settings)return;
   if(isEditingFocus()){deferred=true;return;}
   deferred=false;
@@ -751,6 +776,14 @@ function render(){
   const base=Math.max(net,inst+fixed+logged,1);
   $('barC').style.width=((inst+fixed)/base*100)+'%';$('barS').style.width=(logged/base*100)+'%';$('barS').className='s'+(left<0?' bad':'');
   $('mainBarWrap').setAttribute('aria-label',`ผ่อนและค่าประจำ ${fmt(inst+fixed)} จ่ายครั้งเดียว ${fmt(logged)} จากเงินเข้าบัญชี ${fmt(net)}`);
+  {const ml=mLong(key);$('heroMonth').textContent=ml;$('heroNow').textContent=key===CUR?'เดือนนี้':key<CUR?'ย้อนหลัง':'ล่วงหน้า';
+   $('balLbl').textContent=`ยอดคงเหลือใช้ได้ · ${ml}`;
+   $('balNote').textContent=`เงินเข้าบัญชีเดือน${ml} หักผ่อน ค่าประจำ และรายจ่ายที่ต้องจ่ายภายในเดือนนี้`;
+   const nk=addM(key,1),startNext=itemsIn(nk,isInst).filter(it=>it.start===nk&&(it.recvDate||it.buyDate||'')<nk+'-01'&&(it.recvDate||it.buyDate||'')>='');
+   const deferInst=sumA(startNext.filter(it=>(it.recvDate||it.buyDate||'').slice(0,7)===key));
+   const deferLog=sumL((state.ahead[nk]||[]).filter(l=>(l.date||'').slice(0,7)===key));
+   const dt=deferInst+deferLog,el=$('heroDefer');
+   if(dt>0){el.hidden=false;el.textContent=`ซื้อเดือนนี้แต่ไปจ่ายต้น${mLong(nk)} ${fmt(dt)} · ไปหักเดือนหน้า`;}else el.hidden=true;}
   $('stNet').textContent=fmt(net);$('stInst').textContent=fmt(inst);$('stFixed').textContent=fmt(fixed);$('stLog').textContent=fmt(logged);
 
   renderIncome();renderChips();
@@ -762,7 +795,14 @@ function render(){
 
 function renderIncome(){
   const st=state.settings,key=state.monthKey,ded=dedIn(key);
-  $('incSummary').textContent=`เงินเดือน ${fmt(st.salary)} · หัก ${fmt(sumA(ded))} · เข้าบัญชี ${fmt(netIn(key))}`;
+  const xi=incIn(key);
+  $('incSummary').textContent=`เงินเดือน ${fmt(st.salary)}${xi.length?` · รายได้อื่น ${fmt(sumA(xi))}`:''} · หัก ${fmt(sumA(ded))} · เข้าบัญชี ${fmt(netIn(key))}`;
+  if(!document.activeElement||!document.activeElement.closest||!document.activeElement.closest('#incList'))
+  $('incList').innerHTML=(st.incomes||[]).filter(d=>!d.end||d.end>=key).map(d=>`<div class="ded-row inc-row" data-inc="${esc(d.id)}">
+    <input aria-label="ชื่อรายได้" id="xn_${esc(d.id)}" data-k="name" value="${esc(d.name)}" maxlength="40">
+    <input aria-label="จำนวนเงิน" id="xa_${esc(d.id)}" data-k="amount" type="number" min="0" step="0.01" value="${+d.amount||0}">
+    <select aria-label="รับเมื่อไหร่" id="xm_${esc(d.id)}" data-k="mode"><option value="once" ${d.end===d.start?'selected':''}>เฉพาะ ${mShort(d.start)}</option><option value="every" ${d.end!==d.start?'selected':''}>ทุกเดือน ตั้งแต่ ${mShort(d.start)}</option></select>
+    <button class="del" data-delinc="${esc(d.id)}">ลบ</button></div>`).join('')||'<div class="note">ยังไม่มี กด “+ เพิ่มรายได้” เมื่อได้โบนัสหรือรายได้พิเศษ</div>';
   if(document.activeElement!==$('sSalary'))$('sSalary').value=st.salary||0;
   if(document.activeElement!==$('sPfOpen'))$('sPfOpen').value=st.pfOpening||0;
   $('pfTotal').textContent=fmt(pfAccum(key));
@@ -915,7 +955,7 @@ function owingHTML(key){
 }
 function renderGroups(){
   const key=state.monthKey;
-  ensurePrev();ensureAhead();
+  ensurePrev();
   $('groups').innerHTML=Object.entries(GROUPS).map(([g,name])=>{
     const cats=state.settings.cats.filter(c=>c.group===g);if(!cats.length)return '';
     const tot=cats.reduce((a,c)=>a+catTotal(c,key),0);
@@ -1148,6 +1188,12 @@ $('newCatForm').addEventListener('submit',ev=>{
 /* income */
 $('sSalary').addEventListener('change',ev=>{state.settings.salary=Math.max(0,+ev.target.value||0);saveSettings();});
 $('sPfOpen').addEventListener('change',ev=>{state.settings.pfOpening=Math.max(0,+ev.target.value||0);saveSettings();});
+$('incList').addEventListener('change',ev=>{
+  const row=ev.target.closest('[data-inc]');if(!row)return;const d=state.settings.incomes.find(x=>x.id===row.dataset.inc);if(!d)return;
+  const k=ev.target.dataset.k;
+  if(k==='name')d.name=ev.target.value.trim()||d.name;else if(k==='amount')d.amount=Math.max(0,r2(ev.target.value));else if(k==='mode')d.end=ev.target.value==='once'?d.start:'';
+  saveSettingsQuiet();setTimeout(render,0);
+});
 $('dedList').addEventListener('change',ev=>{
   const row=ev.target.closest('[data-ded]');if(!row)return;const d=state.settings.deductions.find(x=>x.id===row.dataset.ded);if(!d)return;
   const k=ev.target.dataset.k;
@@ -1199,13 +1245,14 @@ groupsEl.addEventListener('submit',ev=>{
 let armed=null;
 const disarm=()=>{if(armed){armed.classList.remove('arm');armed.textContent=armed.dataset.label;armed=null;}};
 document.addEventListener('click',ev=>{
-  const d=ev.target.closest('[data-dellog],[data-delitem],[data-delcat],[data-delded],[data-delpre]');
+  const d=ev.target.closest('[data-dellog],[data-delitem],[data-delcat],[data-delded],[data-delpre],[data-delinc]');
   if(!d)disarm();
   else{
     if(armed!==d){disarm();armed=d;d.dataset.label=d.textContent;d.classList.add('arm');d.textContent='ยืนยันลบ';ev.preventDefault();return;}
     armed=null;ev.preventDefault();
     if(d.dataset.dellog){ensureReal();state.logs=state.logs.filter(l=>l.id!==d.dataset.dellog);state.editLog=null;saveMonth();render();}
     else if(d.dataset.delitem){state.settings.cats.forEach(c=>c.items=c.items.filter(i=>i.id!==d.dataset.delitem));state.editItem=null;saveSettings();}
+    else if(d.dataset.delinc){state.settings.incomes=state.settings.incomes.filter(x=>x.id!==d.dataset.delinc);saveSettings();}
     else if(d.dataset.delpre){state.settings.preorders=state.settings.preorders.filter(x=>x.id!==d.dataset.delpre);saveSettings();}
     else if(d.dataset.delded){state.settings.deductions=state.settings.deductions.filter(x=>x.id!==d.dataset.delded);saveSettings();}
     else{const c=catById(d.dataset.delcat);state.settings.cats=state.settings.cats.filter(x=>x.id!==d.dataset.delcat);state.editCat=null;saveSettings();c&&toast('ลบหมวด '+c.name+' แล้ว');}
@@ -1221,6 +1268,14 @@ document.addEventListener('click',ev=>{
     if(pay!==state.monthKey)entry.pay=pay;
     state.settings.preorders=state.settings.preorders.filter(x=>x.id!==p.id);saveSettingsQuiet();addLogToMonth(pay,entry);
     toast(`รับสินค้าแล้ว · นับ ${fmt(+p.amt)} เข้าเดือน ${mShort(pay)}`);return;}
+  const mn=ev.target.closest('[data-mnav]');if(mn){shiftMonth(+mn.dataset.mnav);return;}
+  const stt=ev.target.closest('[data-stat]');if(stt){
+    const w=stt.dataset.stat;
+    if(w==='income'){$('incomeBox').open=true;$('sSalary').focus();$('sSalary').select();return;}
+    state.qType=w;const want=w==='installment'?'installment':w==='recurring'?'fixed':null;
+    if(want){const c=state.settings.cats.find(x=>x.id===state.quickCat&&x.group===want)||state.settings.cats.find(x=>x.group===want);if(c)state.quickCat=c.id;}
+    renderChips();$('slip').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+    $({once:'qAmt',installment:'iName',recurring:'rName'}[w]).focus({preventScroll:true});return;}
   const e1=ev.target.closest('[data-edititem]');if(e1){state.editItem=e1.dataset.edititem;state.editLog=null;render();const f=document.querySelector(`[data-itemform="${e1.dataset.edititem}"] input`);f&&f.focus();return;}
   const e2=ev.target.closest('[data-editlog]');if(e2){state.editLog=e2.dataset.editlog;state.editItem=null;render();const f=document.querySelector(`[data-logform="${e2.dataset.editlog}"] input`);f&&f.focus();return;}
   const a=ev.target.closest('[data-act]');if(!a)return;
@@ -1241,6 +1296,7 @@ document.addEventListener('click',ev=>{
     case 'managecats':state.manage=!state.manage;renderChips();break;
     case 'newcat':$('newCatForm').hidden=false;$('ncName').focus();break;
     case 'closenewcat':$('newCatForm').hidden=true;break;
+    case 'addinc':state.settings.incomes.push({id:uid(),name:'รายได้เสริม',amount:0,start:state.monthKey,end:state.monthKey});saveSettings();{const el=document.querySelector('#incList .inc-row:last-child input');el&&(el.focus(),el.select());}break;
     case 'addded':state.settings.deductions.push({id:uid(),name:'รายการหัก',amount:0,start:state.monthKey,end:''});saveSettings();{const el=document.querySelector('#dedList .ded-row:last-child input');el&&(el.focus(),el.select());}break;
   }
 });
