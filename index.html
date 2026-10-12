@@ -145,10 +145,12 @@ details.income .note,details.income .lbl{color:var(--muted)}
 .inc-body{display:grid;gap:14px;padding-top:12px}
 .inc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
 .inc-body input{background:var(--card)}
-.ded-row{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1.3fr) auto auto;gap:6px;align-items:center;padding-block:5px}
+.ded-row{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) auto auto;gap:6px;align-items:center;padding-block:5px}
 .ded-row input{padding:7px 10px;font-size:14px}
-.inc-row{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1.3fr) auto}
-@media (max-width:560px){.ded-row,.inc-row{grid-template-columns:1fr 1fr}.ded-row select,.inc-row select{grid-column:1/-1}}
+.inc-row{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) auto}
+.ded-row.off{opacity:.55}
+.ded-row select{padding:7px 10px;font-size:13px}
+
 .pf{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);white-space:nowrap}
 .pf input{width:auto;accent-color:var(--s3)}
 .pfbox{background:color-mix(in srgb,var(--blob3) 70%,var(--card));border-radius:20px;padding:12px 16px;display:grid;gap:4px}
@@ -245,6 +247,29 @@ details.income .note,details.income .lbl{color:var(--muted)}
 .tag{font-size:11px;padding:1px 9px;border-radius:999px;font-weight:600;white-space:nowrap}
 .tag.last{color:var(--ink);background:var(--blob6)} .tag.new{color:var(--sky-ink);background:var(--sky-soft)}
 .bill{display:grid;gap:4px;background:color-mix(in srgb,var(--c) 16%,var(--solid));border-radius:20px;padding:12px 14px;font-size:13px}
+.searchbox{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--edge);border-radius:999px;padding:4px 6px 4px 16px;box-shadow:var(--shadow);color:var(--muted)}
+.searchbox input{background:transparent;border:0;padding:8px 6px}
+.searchbox input:focus{background:transparent;border:0}
+.sumcard{padding:18px;display:grid;gap:12px}
+.sumcard summary{list-style:none;cursor:pointer}
+.sumcard summary::-webkit-details-marker{display:none}
+.sumcard[open] .chev{transform:rotate(180deg)}
+.sumcard:not([open]){gap:0}
+.sum-top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:flex-end}
+.sum-top b{font-family:var(--f-num);font-size:28px;display:block}
+.sum-rows{display:grid;gap:8px}
+.sum-row{display:grid;grid-template-columns:minmax(0,8rem) minmax(0,1fr) auto;gap:10px;align-items:center;font-size:14px}
+.sum-row .track{height:12px;background:var(--track);border-radius:999px;overflow:hidden}
+.sum-row .track i{display:block;height:100%;border-radius:999px}
+.sum-row b{font-family:var(--f-num);text-align:right;white-space:nowrap}
+.sum-row small{color:var(--muted);margin-left:6px;font-weight:400}
+.sum-chips{display:flex;flex-wrap:wrap;gap:6px}
+.sum-chips span{background:var(--field);border-radius:999px;padding:3px 12px;font-size:13px}
+.res-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 10px;border-radius:16px;background:var(--field);cursor:pointer;border:0;text-align:left;font:inherit;color:inherit;width:100%}
+.res-row:hover{background:var(--sky-soft)}
+mark{background:color-mix(in srgb,var(--s7) 55%,transparent);border-radius:4px;padding:0 2px;color:inherit}
+.savtot{display:flex;justify-content:space-between;align-items:baseline;gap:8px;background:color-mix(in srgb,var(--s3) 22%,var(--solid));border-radius:14px;padding:8px 12px;font-size:13px}
+.savtot b{font-family:var(--f-num);font-size:18px}
 .bill summary{list-style:none;cursor:pointer}
 .bill summary::-webkit-details-marker{display:none}
 .bill-sum{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 10px}
@@ -501,6 +526,7 @@ details.changes summary::-webkit-details-marker{display:none}
         <label><input type="radio" name="view" value="chart"><span>กราฟ</span></label>
       </div>
     </div>
+    <div class="searchbox"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input id="search" type="search" placeholder="ค้นหารายการ เช่น แอร์, Shopee, ค่าห้อง" aria-label="ค้นหารายการ"></div>
     <div id="groups" style="display:grid;gap:26px"></div>
     <div id="charts" class="charts" hidden></div>
   </section>
@@ -551,8 +577,11 @@ import {getAuth,onAuthStateChanged,signInWithPopup,signInWithRedirect,GoogleAuth
 import {initializeFirestore,persistentLocalCache,persistentMultipleTabManager,doc,collection,onSnapshot,getDoc,getDocs,setDoc,writeBatch} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const CONFIGURED=!firebaseConfig.apiKey.startsWith("ใส่");
 (function(){
-const APP_VERSION='1.13.3',APP_DATE='12 ต.ค. 2569';
+const APP_VERSION='1.14.2',APP_DATE='12 ต.ค. 2569';
 const CHANGELOG=[
+  ['1.14.2','การ์ดสรุปค่าใช้จ่ายกดซ่อน/แสดงได้'],
+  ['1.14.1','เอาตัวเลือกเดือนออกจากรายได้อื่นและรายการหัก'],
+  ['1.14.0','รายได้อื่นและรายการหักเลือกเฉพาะเดือนหรือทุกเดือนพร้อมเลือกเดือนเริ่ม หมวดเงินเก็บแสดงยอดสะสม ช่องค้นหา และการ์ดสรุปค่าใช้จ่าย'],
   ['1.13.3','กองทุนสำรองฯ แสดงยอดเฉพาะเดือนที่เลือก รายการหักเลือกได้ว่าเฉพาะเดือนนี้หรือทุกเดือน'],
   ['1.13.2','เอาตัวเลือกเดือนมุมขวาบนออก ใช้ตัวเลือกเดือนในการ์ดยอดคงเหลือแทน'],
   ['1.13.1','แสดงเดือนในการ์ดยอดคงเหลือ เลื่อนเดือนได้จากการ์ด และบอกยอดที่ซื้อเดือนนี้แต่ไปหักเดือนหน้า'],
@@ -676,7 +705,7 @@ const SAMPLE={salary:30000,pfOpening:0,deductions:[{id:'d1',name:'ประก�
 const SAMPLE_MONTH={paid:['i3','i4'],logs:[{id:'l1',cat:'fuel',amt:500,note:'เติมน้ำมัน',date:`${CUR}-${pad(Math.min(3,today.getDate()))}`},{id:'l2',cat:'fuel',amt:450,note:'',date:todayISO}]};
 
 const state={mode:'loading',settings:null,logs:[],paid:[],monthKey:CUR,quickCat:null,qType:'once',view:'list',
-  manage:false,billOpen:{},ahead:{},aheadLoading:{},editItem:null,editLog:null,editCat:null,monthCache:{},prevLogs:{key:null,logs:[]},prevLoading:null};
+  manage:false,sumOpen:(()=>{try{return localStorage.getItem('sbk.sumOpen')!=='0';}catch(e){return true;}})(),billOpen:{},ahead:{},aheadLoading:{},editItem:null,editLog:null,editCat:null,monthCache:{},prevLogs:{key:null,logs:[]},prevLoading:null};
 let backend=null,deferred=false;
 
 function norm(s){
@@ -794,26 +823,28 @@ function render(){
   renderNext();
 }
 
+function monthOpts(sel){const ks=[];for(let n=-12;n<=12;n++)ks.push(addM(CUR,n));if(sel&&!ks.includes(sel))ks.push(sel);ks.sort();return ks.map(k=>`<option value="${k}" ${k===sel?'selected':''}>${mLong(k)}</option>`).join('');}
+function modeCtl(d,pre){const once=!!(d.end&&d.end===d.start),i=esc(d.id);
+  return `<select aria-label="รูปแบบ" id="${pre}m_${i}" data-k="mode"><option value="once" ${once?'selected':''}>เฉพาะเดือน</option><option value="every" ${!once?'selected':''}>ทุกเดือน เริ่ม</option></select>
+  <select aria-label="เดือน" id="${pre}s_${i}" data-k="month">${monthOpts(d.start||state.monthKey)}</select>`;}
 function renderIncome(){
   const st=state.settings,key=state.monthKey,ded=dedIn(key);
   const xi=incIn(key);
   $('incSummary').textContent=`เงินเดือน ${fmt(st.salary)}${xi.length?` · รายได้อื่น ${fmt(sumA(xi))}`:''} · หัก ${fmt(sumA(ded))} · เข้าบัญชี ${fmt(netIn(key))}`;
   if(!document.activeElement||!document.activeElement.closest||!document.activeElement.closest('#incList'))
-  $('incList').innerHTML=(st.incomes||[]).filter(d=>!d.end||d.end>=key).map(d=>`<div class="ded-row inc-row" data-inc="${esc(d.id)}">
+  $('incList').innerHTML=(st.incomes||[]).filter(d=>!d.end||d.end>=key).map(d=>`<div class="ded-row inc-row ${active(d,key)?'':'off'}" data-inc="${esc(d.id)}">
     <input aria-label="ชื่อรายได้" id="xn_${esc(d.id)}" data-k="name" value="${esc(d.name)}" maxlength="40">
     <input aria-label="จำนวนเงิน" id="xa_${esc(d.id)}" data-k="amount" type="number" min="0" step="0.01" value="${+d.amount||0}">
-    <select aria-label="รับเมื่อไหร่" id="xm_${esc(d.id)}" data-k="mode"><option value="once" ${d.end===d.start?'selected':''}>เฉพาะ ${mShort(d.start)}</option><option value="every" ${d.end!==d.start?'selected':''}>ทุกเดือน ตั้งแต่ ${mShort(d.start)}</option></select>
     <button class="del" data-delinc="${esc(d.id)}">ลบ</button></div>`).join('')||'<div class="note">ยังไม่มี กด “+ เพิ่มรายได้” เมื่อได้โบนัสหรือรายได้พิเศษ</div>';
   if(document.activeElement!==$('sSalary'))$('sSalary').value=st.salary||0;
   if(document.activeElement!==$('sPfOpen'))$('sPfOpen').value=st.pfOpening||0;
   const pfm=ded.filter(d=>d.pf);
-  $('pfTotal').textContent=fmt(sumA(pfm));
-  $('pfNote').textContent=st.deductions.some(d=>d.pf)?`หักเดือน${mLong(key)} · ไม่รวมส่วนที่นายจ้างสมทบ`:'ติ๊ก “กองทุน” ที่รายการหัก เพื่อแสดงยอดกองทุนของเดือนนี้';
+  $('pfTotal').textContent=fmt(sumA(pfm));const pfc=pfAccum(key);
+  $('pfNote').textContent=st.deductions.some(d=>d.pf)?`หักเดือน${mLong(key)} · สะสมทั้งหมดถึงเดือนนี้ ${fmt(pfc)} · ไม่รวมส่วนที่นายจ้างสมทบ`:'ติ๊ก “กองทุน” ที่รายการหัก เพื่อแสดงยอดกองทุนของเดือนนี้';
   if(!document.activeElement||!document.activeElement.closest||!document.activeElement.closest('#dedList'))
-  $('dedList').innerHTML=st.deductions.filter(d=>!d.end||d.end>=key).map(d=>`<div class="ded-row" data-ded="${esc(d.id)}">
+  $('dedList').innerHTML=st.deductions.filter(d=>!d.end||d.end>=key).map(d=>`<div class="ded-row ${active(d,key)?'':'off'}" data-ded="${esc(d.id)}">
     <input aria-label="ชื่อรายการหัก" id="dn_${esc(d.id)}" data-k="name" value="${esc(d.name)}" maxlength="40">
     <input aria-label="บาทต่อเดือน" id="da_${esc(d.id)}" data-k="amount" type="number" min="0" step="0.01" value="${+d.amount||0}">
-    <select aria-label="หักเมื่อไหร่" id="dm_${esc(d.id)}" data-k="mode"><option value="once" ${d.end&&d.end===d.start?'selected':''}>เฉพาะ ${mShort(d.start&&d.end===d.start?d.start:key)}</option><option value="every" ${!(d.end&&d.end===d.start)?'selected':''}>ทุกเดือน${d.start?' ตั้งแต่ '+mShort(d.start):''}</option></select>
     <label class="pf"><input type="checkbox" data-k="pf" ${d.pf?'checked':''}>กองทุน</label>
     <button class="del" data-delded="${esc(d.id)}">ลบ</button></div>`).join('')||'<div class="note">ไม่มีรายการหัก</div>';
 }
@@ -935,6 +966,8 @@ function doodleKey(c){if(c.ico&&DOODLES[c.ico])return c.ico;const n=(c.name||'')
 function doodleSVG(k,size){const d=DOODLES[k]||DOODLES.sparkle;return `<svg viewBox="0 0 64 64" width="${size}" height="${size}" aria-hidden="true"><g stroke="${INK}" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round">${d.d}</g></svg>`;}
 
 function catIcon(c){return doodleSVG(doodleKey(c),34);}
+function isSaving(c){return c.saving===true||(c.saving!==false&&doodleKey(c)==='piggy');}
+function savingCum(c,key){let t=0;c.items.forEach(it=>{if(!it.start||it.start>key)return;const e=it.end&&it.end<key?it.end:key;t+=(idx(e)-idx(it.start)+1)*(+it.amount||0);});return t+sumL(state.logs.filter(l=>l.cat===c.id));}
 function catTotal(c,key){return sumA(c.items.filter(it=>active(it,key)))+sumL(state.logs.filter(l=>l.cat===c.id));}
 function owingHTML(key){
   const list=itemsIn(key,isInst).filter(it=>it.end);
@@ -956,15 +989,39 @@ function owingHTML(key){
       <div class="owing-amt"><b>${fmt(r.remAmt)}</b><small>${r.remN?`อีก ${r.remN} งวด × ${fmt(+r.it.amount)}`:'ผ่อนครบแล้ว'}</small></div></div>`).join('')}</div>
   </section>`;
 }
+function summaryHTML(key){
+  const net=netIn(key),inst=sumA(itemsIn(key,isInst)),fixed=sumA(itemsIn(key,it=>!isInst(it))),once=sumL(state.logs),tot=inst+fixed+once;
+  const sav=state.settings.cats.filter(isSaving).reduce((a,c)=>a+catTotal(c,key),0);
+  const rows=[['ผ่อนชำระ',inst,'var(--s2)'],['ค่าใช้จ่ายประจำ',fixed,'var(--sky)'],['จ่ายครั้งเดียว',once,'var(--s6)']];
+  const top=state.settings.cats.map(c=>({c,v:catTotal(c,key)})).filter(x=>x.v>0&&!isSaving(x.c)).sort((a,b)=>b.v-a.v).slice(0,3);
+  return `<details class="card sumcard" data-sum="1" aria-label="สรุปค่าใช้จ่าย" ${state.sumOpen?'open':''}><summary class="sum-top"><div><h2 style="font-size:18px">สรุปค่าใช้จ่าย · ${mLong(key)}</h2><span class="note">${state.sumOpen?'แตะเพื่อซ่อน':'แตะเพื่อดูรายละเอียด'}</span></div>
+    <div style="display:flex;align-items:center;gap:10px"><div style="text-align:right"><b>${fmt(tot)}</b><span class="note">${net>0?Math.round(tot/net*100)+'% ของเงินเข้าบัญชี '+fmt(net):''}</span></div><span class="chev" aria-hidden="true">▾</span></div></summary>
+    <div class="sum-rows">${rows.map(([n,v,col])=>`<div class="sum-row"><span>${n}</span><span class="track"><i style="width:${tot?v/tot*100:0}%;background:${col}"></i></span><b>${fmt(v)}<small>${tot?Math.round(v/tot*100):0}%</small></b></div>`).join('')}</div>
+    <div class="sum-chips">${top.length?`<span>ใช้มากสุด: ${top.map(x=>`${esc(x.c.name)} ${fmt(x.v)}`).join(' · ')}</span>`:''}${sav>0?`<span>เงินเก็บเดือนนี้ ${fmt(sav)}${net>0?` (${Math.round(sav/net*100)}% ของรายได้)`:''}</span>`:''}<span>คงเหลือ ${fmt(net-tot)}</span></div></details>`;
+}
+function searchHTML(key,q){
+  const ql=q.toLowerCase(),hit=t=>String(t||'').toLowerCase().includes(ql),mk=t=>esc(t).replace(new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'),m=>`<mark>${m}</mark>`);
+  const res=[];
+  state.settings.cats.forEach(c=>{
+    c.items.forEach(it=>{if(hit(it.name)||hit(c.name))res.push({c,t:it.name,sub:isInst(it)?(it.pending?'ผ่อน · รอรับของ':`ผ่อน ${it.count||''} งวด · ${mShort(it.start)} – ${mShort(it.end)}`):(it.end?`ประจำ ${mShort(it.start)} – ${mShort(it.end)}`:'ประจำทุกเดือน'),amt:+it.amount,per:'/เดือน'});});
+    state.settings.preorders.filter(p=>p.cat===c.id&&(hit(p.note)||hit(c.name))).forEach(p=>res.push({c,t:p.note||'พรีออเดอร์',sub:`พรีออเดอร์ สั่ง ${dShort(p.date)}`,amt:+p.amt}));
+  });
+  const logsAll=[...state.logs.map(l=>({...l,_m:key})),...Object.entries(state.ahead).flatMap(([k,ls])=>ls.map(l=>({...l,_m:k})))];
+  logsAll.forEach(l=>{const c=catById(l.cat);if(c&&(hit(l.note)||hit(c.name)))res.push({c,t:l.note||c.name,sub:`${dShort(l.date)}${l.time?' '+l.time:''} · นับเดือน ${mShort(l._m)}`,amt:+l.amt});});
+  return `<section class="card sumcard"><div class="sum-top"><h2 style="font-size:18px">ผลการค้นหา “${esc(q)}”</h2><span class="note">${res.length} รายการ · รายการจ่ายครั้งเดียวค้นในเดือนที่เปิดอยู่และเดือนถัดไป</span></div>
+    <div class="sum-rows">${res.map(r=>`<button type="button" class="res-row" data-goto="${esc(r.c.id)}"><span class="ic" aria-hidden="true">${catIcon(r.c)}</span><span style="min-width:0"><span class="r-name">${mk(r.t)}</span> <span class="note">· ${mk(r.c.name)}</span><div class="r-sub">${esc(r.sub)}</div></span><b class="num">${fmt(r.amt)}${r.per?`<small class="note">${r.per}</small>`:''}</b></button>`).join('')||'<div class="note">ไม่พบรายการ</div>'}</div></section>`;
+}
 function renderGroups(){
   const key=state.monthKey;
   ensurePrev();
+  const q=($('search').value||'').trim();
+  if(q){$('groups').innerHTML=searchHTML(key,q);return;}
   $('groups').innerHTML=Object.entries(GROUPS).map(([g,name])=>{
     const cats=state.settings.cats.filter(c=>c.group===g);if(!cats.length)return '';
     const tot=cats.reduce((a,c)=>a+catTotal(c,key),0);
     let extra='';
     if(g==='installment'){const n=itemsIn(key,isInst).filter(it=>it.end===key).length;if(n)extra=` · จบเดือนนี้ ${n} รายการ`;}
-    return (g==='installment'?owingHTML(key):'')+`<section class="group" aria-label="${name}"><div class="group-h"><h2>${name}</h2><span class="note"><span class="num">${fmt(tot)}</span>${extra}</span></div><div class="envs">${cats.map(c=>envelope(c,key)).join('')}</div></section>`;
+    return (g===Object.keys(GROUPS)[0]?summaryHTML(key):'')+(g==='installment'?owingHTML(key):'')+`<section class="group" aria-label="${name}"><div class="group-h"><h2>${name}</h2><span class="note"><span class="num">${fmt(tot)}</span>${extra}</span></div><div class="envs">${cats.map(c=>envelope(c,key)).join('')}</div></section>`;
   }).join('')||'<div class="note">ยังไม่มีหมวด เพิ่มได้จากช่องจดรายจ่ายด้านบน</div>';
 }
 function itemForm(it){
@@ -1006,8 +1063,10 @@ function envelope(c,key){
   let sub='';
   if(c.group==='flex'||(+c.budget||0)>0){const b=+c.budget||0;sub=b>0?`เหลือ ${fmt(b-tot)} จากงบ ${fmt(b)}`:'ยังไม่ได้ตั้งงบ';}
   else if(items.length){const p=items.filter(it=>state.paid.includes(it.id));sub=`จ่ายแล้ว ${p.length}/${items.length}`;}
+  const savLine=isSaving(c)?`<div class="savtot"><span>ยอดเงินเก็บสะสมถึง${mLong(key)}</span><b>${fmt(savingCum(c,key))}</b></div>`:'';
   let h=`<article class="card env" style="--c:var(--s${c.color||8})" data-cat="${esc(c.id)}">
     <div class="env-h"><h3><span class="ic" aria-hidden="true">${catIcon(c)}</span>${esc(c.name)}</h3><div class="env-tot">${fmt(tot)}<small>${sub}</small></div></div>`;
+  h+=savLine;
   const bi=billInfo(c,key);if(bi&&state.editCat!==c.id)h+=billHTML(bi,key,c.id);
   if((+c.budget||0)>0){const p=tot/c.budget*100;h+=`<div class="bar"><i class="${p>=100?'bad':p>=85?'warn':''}" style="width:${Math.min(100,p)}%;${p<85?'background:var(--c)':''}"></i></div>`;}
   if(state.editCat===c.id){
@@ -1019,6 +1078,7 @@ function envelope(c,key){
       <div class="field"><label for="cb_${i}">งบต่อเดือน (0 = ไม่ตั้ง)</label><input id="cb_${i}" name="budget" type="number" min="0" step="100" value="${+c.budget||0}"></div>
       <div class="field"><label for="cc_${i}">วันสรุปยอด (วันที่ 1-31)</label><input id="cc_${i}" name="cutoff" type="number" min="1" max="31" step="1" placeholder="ไม่มี" value="${+c.cutoff||''}"></div>
       <div class="field"><label for="cd_${i}">วันครบกำหนดชำระ (วันที่ 1-31)</label><input id="cd_${i}" name="due" type="number" min="1" max="31" step="1" placeholder="ไม่มี" value="${+c.due||''}"></div>
+      <label class="preo full"><input type="checkbox" name="saving" ${isSaving(c)?'checked':''}> เป็นเงินเก็บ · แสดงยอดสะสมทั้งหมด</label>
       <div class="acts"><button type="button" class="del" data-delcat="${i}">ลบหมวดนี้</button><span><button type="button" class="link" data-act="cancel">ยกเลิก</button> <button class="btn sm" type="submit">บันทึก</button></span></div></form>`;
   }
   if(items.length){
@@ -1136,6 +1196,7 @@ $('chips').addEventListener('click',ev=>{
 });
 document.querySelectorAll('input[name=qType]').forEach(r=>r.addEventListener('change',()=>{state.qType=r.value;updateQuickForm();}));
 ['iPrin','iCount','iRate','iBuy','iPend','iMonthly','iFirst'].forEach(id=>{$(id).addEventListener('input',updateQuickForm);$(id).addEventListener('change',updateQuickForm);});
+$('search').addEventListener('input',()=>{if(state.view!=='list'){state.view='list';document.querySelectorAll('input[name=view]').forEach(r=>r.checked=r.value==='list');}render();});
 document.querySelectorAll('input[name=view]').forEach(r=>r.addEventListener('change',()=>{state.view=r.value;render();}));
 
 $('quickForm').addEventListener('submit',ev=>{
@@ -1194,21 +1255,21 @@ $('sPfOpen').addEventListener('change',ev=>{state.settings.pfOpening=Math.max(0,
 $('incList').addEventListener('change',ev=>{
   const row=ev.target.closest('[data-inc]');if(!row)return;const d=state.settings.incomes.find(x=>x.id===row.dataset.inc);if(!d)return;
   const k=ev.target.dataset.k;
-  if(k==='name')d.name=ev.target.value.trim()||d.name;else if(k==='amount')d.amount=Math.max(0,r2(ev.target.value));else if(k==='mode')d.end=ev.target.value==='once'?d.start:'';
+  if(k==='name')d.name=ev.target.value.trim()||d.name;else if(k==='amount')d.amount=Math.max(0,r2(ev.target.value));else if(k==='mode'||k==='month'){const once=d.end&&d.end===d.start;if(k==='month'){d.start=ev.target.value;if(once)d.end=d.start;}else{d.end=ev.target.value==='once'?(d.start||state.monthKey):'';}}
   saveSettingsQuiet();setTimeout(render,0);
 });
 $('dedList').addEventListener('change',ev=>{
   const row=ev.target.closest('[data-ded]');if(!row)return;const d=state.settings.deductions.find(x=>x.id===row.dataset.ded);if(!d)return;
   const k=ev.target.dataset.k;
   if(k==='name')d.name=ev.target.value.trim()||d.name;else if(k==='amount')d.amount=Math.max(0,r2(ev.target.value));else if(k==='pf')d.pf=ev.target.checked;
-  else if(k==='mode'){if(ev.target.value==='once'){d.start=state.monthKey;d.end=state.monthKey;}else{d.end='';if(!d.start)d.start=state.monthKey;}}
+  else if(k==='mode'||k==='month'){const once=d.end&&d.end===d.start;if(k==='month'){d.start=ev.target.value;if(once)d.end=d.start;}else{if(!d.start)d.start=state.monthKey;d.end=ev.target.value==='once'?d.start:'';}}
   saveSettingsQuiet();setTimeout(render,0);
 });
 document.addEventListener('focusout',()=>{setTimeout(()=>{if(deferred&&!isEditingFocus())render();},0);});
 
 /* envelopes */
 const groupsEl=$('groups');
-groupsEl.addEventListener('toggle',ev=>{const d=ev.target;if(d.dataset&&d.dataset.bill)state.billOpen[d.dataset.bill]=d.open;},true);
+groupsEl.addEventListener('toggle',ev=>{const d=ev.target;if(d.dataset&&d.dataset.bill)state.billOpen[d.dataset.bill]=d.open;if(d.dataset&&d.dataset.sum&&state.sumOpen!==d.open){state.sumOpen=d.open;try{localStorage.setItem('sbk.sumOpen',d.open?'1':'0');}catch(e){}const n=d.querySelector('.sum-top .note');if(n)n.textContent=d.open?'แตะเพื่อซ่อน':'แตะเพื่อดูรายละเอียด';}},true);
 groupsEl.addEventListener('change',ev=>{
   const t=ev.target;if(!t.dataset.paid)return;ensureReal();
   const id=t.dataset.paid;state.paid=t.checked?[...new Set([...state.paid,id])]:state.paid.filter(x=>x!==id);saveMonth();render();
@@ -1240,7 +1301,7 @@ groupsEl.addEventListener('submit',ev=>{
     state.logs=state.logs.map(x=>x.id===l.id?upd:x);saveMonth();render();toast('บันทึกการแก้ไขแล้ว');
   }else if(f.dataset.catform){
     const c=catById(f.dataset.catform);if(!c)return;
-    c.name=String(fd.get('name')).trim()||c.name;c.ico=fd.get('ico')||null;delete c.icon;delete c.face;c.group=fd.get('group');c.budget=Math.max(0,+fd.get('budget')||0);
+    c.name=String(fd.get('name')).trim()||c.name;c.ico=fd.get('ico')||null;c.saving=fd.has('saving');delete c.icon;delete c.face;c.group=fd.get('group');c.budget=Math.max(0,+fd.get('budget')||0);
     const cu=Math.round(+fd.get('cutoff')||0),du=Math.round(+fd.get('due')||0);c.cutoff=cu>=1&&cu<=31?cu:null;c.due=du>=1&&du<=31?du:null;
     state.editCat=null;saveSettings();
   }
@@ -1272,6 +1333,7 @@ document.addEventListener('click',ev=>{
     if(pay!==state.monthKey)entry.pay=pay;
     state.settings.preorders=state.settings.preorders.filter(x=>x.id!==p.id);saveSettingsQuiet();addLogToMonth(pay,entry);
     toast(`รับสินค้าแล้ว · นับ ${fmt(+p.amt)} เข้าเดือน ${mShort(pay)}`);return;}
+  const gt=ev.target.closest('[data-goto]');if(gt){$('search').value='';render();const el=document.querySelector(`[data-cat="${gt.dataset.goto}"]`);el&&el.scrollIntoView({behavior:'smooth',block:'center'});return;}
   const mn=ev.target.closest('[data-mnav]');if(mn){shiftMonth(+mn.dataset.mnav);return;}
   const stt=ev.target.closest('[data-stat]');if(stt){
     const w=stt.dataset.stat;
@@ -1300,8 +1362,8 @@ document.addEventListener('click',ev=>{
     case 'managecats':state.manage=!state.manage;renderChips();break;
     case 'newcat':$('newCatForm').hidden=false;$('ncName').focus();break;
     case 'closenewcat':$('newCatForm').hidden=true;break;
-    case 'addinc':state.settings.incomes.push({id:uid(),name:'รายได้เสริม',amount:0,start:state.monthKey,end:state.monthKey});saveSettings();{const el=document.querySelector('#incList .inc-row:last-child input');el&&(el.focus(),el.select());}break;
-    case 'addded':state.settings.deductions.push({id:uid(),name:'รายการหัก',amount:0,start:state.monthKey,end:state.monthKey});saveSettings();{const el=document.querySelector('#dedList .ded-row:last-child input');el&&(el.focus(),el.select());}break;
+    case 'addinc':state.settings.incomes.push({id:uid(),name:'รายได้เสริม',amount:0,start:state.monthKey,end:''});saveSettings();{const el=document.querySelector('#incList .inc-row:last-child input');el&&(el.focus(),el.select());}break;
+    case 'addded':state.settings.deductions.push({id:uid(),name:'รายการหัก',amount:0,start:state.monthKey,end:''});saveSettings();{const el=document.querySelector('#dedList .ded-row:last-child input');el&&(el.focus(),el.select());}break;
   }
 });
 
