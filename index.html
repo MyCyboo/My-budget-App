@@ -103,6 +103,9 @@ input[type=number]{font-family:var(--f-num);font-weight:600}
 .monthnav button:hover{background:var(--sky-soft);color:var(--sky-ink)}
 .monthnav span{min-width:128px;text-align:center;font-family:var(--f-display);font-weight:500}
 .banner{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;background:var(--accent-soft);border-radius:22px;padding:12px 18px}
+.banner-acts{display:flex;gap:8px;flex-wrap:wrap}
+.banner.slim{padding:6px 8px 6px 16px;border-style:solid}
+.banner.slim #bannerText{flex:1 1 auto}
 .banner p{margin:0;min-width:0;flex:1 1 260px}
 
 /* hero */
@@ -397,8 +400,8 @@ details.changes summary::-webkit-details-marker{display:none}
     <h2>สมุดงบรายเดือน</h2>
     <p>จดรายจ่าย ดูยอดผ่อน และรู้ว่าเดือนนี้ยังใช้ได้อีกเท่าไหร่</p>
     <div class="login-feats"><span>แยกตามบัตร</span><span>รอบบิล</span><span>ผ่อนกี่งวด</span><span>ใช้บนมือถือได้</span></div>
-    <button class="gbtn" data-act="login"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>เข้าสู่ระบบด้วย Google</button>
-    <button class="link" data-act="trydemo">ลองดูตัวอย่างก่อน</button>
+    <button class="gbtn" data-act="login"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>เริ่มใช้งาน · เข้าสู่ระบบด้วย Google</button>
+    <button class="btn ghost" data-act="trydemo" style="width:100%">ดูตัวอย่าง</button>
     <p class="note">ข้อมูลของแต่ละคนแยกกันตามบัญชี Google ไม่มีใครเห็นข้อมูลของคุณ</p>
     <span class="ver" id="verTagLogin"></span>
   </div>
@@ -419,8 +422,8 @@ details.changes summary::-webkit-details-marker{display:none}
 
   <div class="setup" id="setupBox" hidden><b>ยังไม่ได้ใส่ค่า Firebase</b> ตอนนี้แอพเก็บข้อมูลไว้ในเบราว์เซอร์นี้เท่านั้น ใส่ค่า firebaseConfig ใน index.html ตามคู่มือ README แล้วอัปโหลดใหม่</div>
   <div class="banner" id="demoBanner" hidden>
-    <p id="bannerText"><b>นี่คือข้อมูลตัวอย่าง</b></p>
-    <button class="btn" data-act="start" id="bannerBtn">เริ่มใช้งานจริง</button>
+    <p id="bannerText"><b>นี่คือข้อมูลตัวอย่าง</b> ไม่ใช่ข้อมูลของใคร กด “เริ่มใช้งาน” เพื่อเริ่มสมุดงบเปล่าของคุณเอง หรือ “ดูตัวอย่าง” เพื่อลองกดเล่นก่อน</p>
+    <div class="banner-acts"><button class="btn ghost" data-act="peek" id="peekBtn">ดูตัวอย่าง</button><button class="btn" data-act="start" id="bannerBtn">เริ่มใช้งาน</button></div>
   </div>
   <div id="errBox" class="err" hidden></div>
 
@@ -493,7 +496,7 @@ details.changes summary::-webkit-details-marker{display:none}
     <form id="quickForm" autocomplete="off" style="display:grid;gap:12px">
       <div class="fgrid" data-for="once">
         <div class="field"><label for="qAmt">จำนวนเงิน (บาท)</label><input id="qAmt" class="amt-in" type="number" inputmode="decimal" step="0.01" min="0.01" placeholder="0"></div>
-        <div class="field"><label for="qNote">รายละเอียด (ไม่ใส่ก็ได้)</label><input id="qNote" type="text" maxlength="80" placeholder="เช่น เติมน้ำมัน ปตท."></div>
+        <div class="field"><label for="qNote">รายละเอียด (ไม่ใส่ก็ได้)</label><input id="qNote" type="text" maxlength="80" placeholder="เช่น ข้าวกลางวัน"></div>
         <div class="field"><label for="qDate">วันที่</label><input id="qDate" type="date"></div>
         <div class="field"><label for="qTime">เวลา</label><input id="qTime" type="time"></div>
         <label class="preo"><input type="checkbox" id="qPre"> พรีออเดอร์ · จ่ายเงินเมื่อกดรับสินค้า</label>
@@ -528,7 +531,7 @@ details.changes summary::-webkit-details-marker{display:none}
         <label><input type="radio" name="view" value="chart"><span>กราฟ</span></label>
       </div>
     </div>
-    <div class="searchbox"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input id="search" type="search" placeholder="ค้นหารายการ เช่น แอร์, Shopee, ค่าห้อง" aria-label="ค้นหารายการ"></div>
+    <div class="searchbox"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input id="search" type="search" placeholder="ค้นหารายการ เช่น ผ่อนโน้ตบุ๊ก, ค่าเช่า, อาหาร" aria-label="ค้นหารายการ"></div>
     <div id="groups" style="display:grid;gap:26px"></div>
     <div id="charts" class="charts" hidden></div>
   </section>
@@ -576,11 +579,13 @@ const firebaseConfig = {
 };
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {getAuth,onAuthStateChanged,signInWithPopup,signInWithRedirect,GoogleAuthProvider,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {initializeFirestore,persistentLocalCache,persistentMultipleTabManager,doc,collection,onSnapshot,getDoc,getDocs,setDoc,writeBatch} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {initializeFirestore,persistentLocalCache,persistentMultipleTabManager,doc,collection,onSnapshot,getDoc,getDocs,setDoc,writeBatch,terminate,clearIndexedDbPersistence} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const CONFIGURED=!firebaseConfig.apiKey.startsWith("ใส่");
 (function(){
-const APP_VERSION='1.14.3',APP_DATE='12 ต.ค. 2569';
+const APP_VERSION='1.15.0',APP_DATE='12 ต.ค. 2569';
 const CHANGELOG=[
+  ['1.15.0','ข้อมูลตัวอย่างใหม่แบบทั่วไป ปุ่มเริ่มใช้งานและดูตัวอย่าง ผู้ใช้ใหม่เริ่มจากสมุดเปล่า'],
+  ['1.14.4','ออกจากระบบแล้วล้างข้อมูลที่ค้างในเครื่องให้อัตโนมัติ และมีปุ่มล้างข้อมูลในหน้า Login สำหรับเครื่องที่ใช้ร่วมกัน'],
   ['1.14.3','แก้บั๊ก: รายได้/รายการหักที่ไม่ได้นับเดือนนี้หายหรือจาง ตอนนี้แสดงทุกรายการ บอกเหตุผล และกด “นับตั้งแต่เดือนนี้” ได้'],
   ['1.14.2','การ์ดสรุปค่าใช้จ่ายกดซ่อน/แสดงได้'],
   ['1.14.1','เอาตัวเลือกเดือนออกจากรายได้อื่นและรายการหัก'],
@@ -699,13 +704,23 @@ function blobSVG(id,size,fill){
   return `<svg class="blob" viewBox="0 0 100 100" width="${size}" height="${size}" aria-hidden="true">${ears}<path d="${BODY[m.b]}" fill="${m.c}"/>${cheeks}<g fill="none" stroke="#3A2E2A" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">${EYES[m.e]}${MOUTH[m.m]}${tear}</g></svg>`;
 }
 
-const SAMPLE={salary:30000,pfOpening:0,deductions:[{id:'d1',name:'ประกันสังคม',amount:750,start:addM(CUR,-12),end:''},{id:'d2',name:'กองทุนสำรองเลี้ยงชีพ',amount:1500,start:addM(CUR,-6),end:'',pf:true}],cats:[
-  {id:'shopee',name:'Shopee',group:'installment',color:2,items:[{id:'i1',name:'ผ่อนโทรศัพท์',type:'installment',amount:1290,start:addM(CUR,-4),end:addM(CUR,5),principal:12900,count:10,rate:0}]},
-  {id:'save',name:'เงินเก็บ',group:'fixed',color:3,items:[{id:'i3',name:'เงินเก็บ',type:'recurring',amount:3000,start:addM(CUR,-6),end:''}]},
-  {id:'dorm',name:'ค่าหอพัก',group:'fixed',color:5,items:[{id:'i4',name:'ค่าห้อง',type:'recurring',amount:4500,start:addM(CUR,-6),end:''}]},
-  {id:'fuel',name:'ค่าน้ำมัน',group:'flex',color:7,budget:2000,items:[]},
+const SAMPLE={salary:25000,pfOpening:0,incomes:[],preorders:[],deductions:[{id:'d1',name:'ประกันสังคม',amount:750,start:addM(CUR,-12),end:''}],cats:[
+  {id:'card',name:'บัตรเครดิต',group:'installment',color:1,ico:'card',cutoff:20,due:5,items:[{id:'i1',name:'ผ่อนโน้ตบุ๊ก',type:'installment',amount:1500,start:addM(CUR,-3),end:addM(CUR,8),principal:18000,count:12,rate:0}]},
+  {id:'rent',name:'ค่าเช่าบ้าน',group:'fixed',color:5,ico:'house',items:[{id:'i2',name:'ค่าเช่า',type:'recurring',amount:6000,start:addM(CUR,-12),end:''}]},
+  {id:'phone',name:'ค่าโทรศัพท์และเน็ต',group:'fixed',color:8,ico:'phone',items:[{id:'i3',name:'มือถือ',type:'recurring',amount:399,start:addM(CUR,-12),end:''},{id:'i4',name:'เน็ตบ้าน',type:'recurring',amount:590,start:addM(CUR,-12),end:''}]},
+  {id:'save',name:'เงินออม',group:'fixed',color:3,ico:'piggy',saving:true,items:[{id:'i5',name:'ออมประจำเดือน',type:'recurring',amount:2500,start:addM(CUR,-5),end:''}]},
+  {id:'food',name:'อาหาร',group:'flex',color:2,ico:'coffee',budget:5000,items:[]},
+  {id:'travel',name:'เดินทาง',group:'flex',color:7,ico:'car',budget:1500,items:[]},
 ]};
-const SAMPLE_MONTH={paid:['i3','i4'],logs:[{id:'l1',cat:'fuel',amt:500,note:'เติมน้ำมัน',date:`${CUR}-${pad(Math.min(3,today.getDate()))}`},{id:'l2',cat:'fuel',amt:450,note:'',date:todayISO}]};
+const SAMPLE_MONTH={paid:['i2','i5'],logs:[{id:'l1',cat:'food',amt:65,note:'ข้าวกะเพรา',date:`${CUR}-${pad(Math.min(2,today.getDate()))}`,time:'12:10'},{id:'l2',cat:'food',amt:55,note:'กาแฟ',date:todayISO,time:'08:30'},{id:'l3',cat:'travel',amt:42,note:'รถไฟฟ้า',date:todayISO,time:'08:05'}]};
+const BLANK={salary:0,pfOpening:0,incomes:[],preorders:[],deductions:[],cats:[
+  {id:'card',name:'บัตรเครดิต',group:'installment',color:1,ico:'card',items:[]},
+  {id:'fixed',name:'ค่าใช้จ่ายประจำ',group:'fixed',color:5,ico:'calendar',items:[]},
+  {id:'save',name:'เงินออม',group:'fixed',color:3,ico:'piggy',saving:true,items:[]},
+  {id:'food',name:'อาหาร',group:'flex',color:2,ico:'coffee',items:[]},
+  {id:'travel',name:'เดินทาง',group:'flex',color:7,ico:'car',items:[]},
+  {id:'misc',name:'ใช้จ่ายทั่วไป',group:'flex',color:8,ico:'basket',items:[]},
+]};
 
 const state={mode:'loading',settings:null,logs:[],paid:[],monthKey:CUR,quickCat:null,qType:'once',view:'list',
   manage:false,sumOpen:(()=>{try{return localStorage.getItem('sbk.sumOpen')!=='0';}catch(e){return true;}})(),billOpen:{},ahead:{},aheadLoading:{},editItem:null,editLog:null,editCat:null,monthCache:{},prevLogs:{key:null,logs:[]},prevLoading:null};
@@ -759,7 +774,13 @@ function localBackend(){
   };return B;
 }
 function toDemo(){state.mode='demo';state.settings=norm(clone(SAMPLE));const s=state.monthKey===CUR?SAMPLE_MONTH:{paid:[],logs:[]};state.logs=clone(s.logs);state.paid=clone(s.paid);}
-function ensureReal(){if(state.mode!=='demo'||!backend)return;state.mode=backend.kind;state.logs=[];state.paid=[];backend.saveSettings();backend.watchMonth();}
+function ensureReal(explicit){
+  if(state.mode!=='demo')return;
+  if(!explicit){if(!state.demoHint){state.demoHint=true;toast('นี่คือข้อมูลตัวอย่าง ลองกดเล่นได้ แต่จะไม่ถูกบันทึก · กด “เริ่มใช้งาน” เพื่อเริ่มสมุดของคุณ');}return;}
+  if(!backend)return;
+  state.mode=backend.kind;state.settings=norm(clone(BLANK));state.logs=[];state.paid=[];state.quickCat=null;
+  backend.saveSettings();backend.watchMonth();toast('เริ่มสมุดงบของคุณแล้ว · เริ่มจากใส่เงินเดือนในการ์ดด้านบน');
+}
 function canSave(){return backend&&(state.mode==='db'||state.mode==='local');}
 function saveSettings(){ensureReal();if(canSave())backend.saveSettings();render();}
 function saveSettingsQuiet(){ensureReal();if(canSave())backend.saveSettings();}
@@ -788,8 +809,10 @@ function render(){
   const st=state.settings,key=state.monthKey;
   $('monthLabel').textContent=mLong(key);
   $('demoBanner').hidden=state.mode!=='demo';
-  if(!backend&&CONFIGURED){$('bannerText').innerHTML='<b>นี่คือข้อมูลตัวอย่าง</b> เข้าสู่ระบบด้วย Google เพื่อบันทึกและดูข้อมูลของคุณจากทุกเครื่อง';$('bannerBtn').textContent='เข้าสู่ระบบด้วย Google';}
-  else{$('bannerText').innerHTML='<b>นี่คือข้อมูลตัวอย่าง</b> กด “เริ่มใช้งานจริง” เพื่อเก็บหมวดเหล่านี้ไว้แก้เป็นของคุณ หรือนำเข้าข้อมูลจากไฟล์ในส่วน “สำรองและนำเข้าข้อมูล” ท้ายหน้า';$('bannerBtn').textContent='เริ่มใช้งานจริง';}
+  if(!state.demoPeek){if(!backend&&CONFIGURED){$('bannerText').innerHTML='<b>นี่คือข้อมูลตัวอย่าง</b> ไม่ใช่ข้อมูลของใคร กด “เริ่มใช้งาน” แล้วเข้าสู่ระบบด้วย Google เพื่อเริ่มสมุดงบของคุณเอง';}
+  else{$('bannerText').innerHTML='<b>ยินดีต้อนรับ</b> นี่คือข้อมูลตัวอย่าง ไม่ใช่ข้อมูลของใคร กด “เริ่มใช้งาน” เพื่อเริ่มสมุดงบเปล่าของคุณ หรือนำเข้าข้อมูลจากไฟล์ในส่วน “สำรองและนำเข้าข้อมูล” ท้ายหน้า';}}
+  {const sl=state.mode==='demo'&&state.demoPeek;$('demoBanner').classList.toggle('slim',!!sl);$('peekBtn').hidden=!!sl;
+   if(sl)$('bannerText').innerHTML='<b>กำลังดูข้อมูลตัวอย่าง</b> · การแก้ไขจะไม่ถูกบันทึก';}
   $('modeNote').textContent=state.mode==='local'?'บันทึกไว้ในเบราว์เซอร์นี้':state.mode==='loading'?'กำลังโหลด…':'';
 
   const net=netIn(key);
@@ -809,7 +832,7 @@ function render(){
   const base=Math.max(net,inst+fixed+logged,1);
   $('barC').style.width=((inst+fixed)/base*100)+'%';$('barS').style.width=(logged/base*100)+'%';$('barS').className='s'+(left<0?' bad':'');
   $('mainBarWrap').setAttribute('aria-label',`ผ่อนและค่าประจำ ${fmt(inst+fixed)} จ่ายครั้งเดียว ${fmt(logged)} จากเงินเข้าบัญชี ${fmt(net)}`);
-  {const ml=mLong(key);$('heroMonth').textContent=ml;$('heroNow').textContent=key===CUR?'เดือนนี้':key<CUR?'ย้อนหลัง':'ล่วงหน้า';
+  {const ml=mLong(key);$('heroMonth').textContent=ml;$('heroNow').textContent=state.mode==='demo'?'ข้อมูลตัวอย่าง':key===CUR?'เดือนนี้':key<CUR?'ย้อนหลัง':'ล่วงหน้า';
    $('balLbl').textContent=`ยอดคงเหลือใช้ได้ · ${ml}`;
    $('balNote').textContent=`เงินเข้าบัญชีเดือน${ml} หักผ่อน ค่าประจำ และรายจ่ายที่ต้องจ่ายภายในเดือนนี้`;
    const nk=addM(key,1),startNext=itemsIn(nk,isInst).filter(it=>it.start===nk&&(it.recvDate||it.buyDate||'')<nk+'-01'&&(it.recvDate||it.buyDate||'')>='');
@@ -1356,13 +1379,15 @@ document.addEventListener('click',ev=>{
   const a=ev.target.closest('[data-act]');if(!a)return;
   const env=a.closest('[data-cat]'),id=env&&env.dataset.cat;
   switch(a.dataset.act){
-    case 'trydemo':document.body.classList.remove('signed-out');break;
-    case 'start':if(!backend&&CONFIGURED){login();break;}ensureReal();render();break;
+    case 'trydemo':document.body.classList.remove('signed-out');state.demoPeek=true;toDemo();render();break;
+    case 'start':if(!backend&&CONFIGURED){login();break;}ensureReal(true);render();break;
     case 'login':login();break;
-    case 'logout':signOut(auth);break;
+    case 'logout':wipeAndReload(true);break;
+    case 'wipe':wipeAndReload(false);break;
     case 'export':doExport();break;
     case 'doimport':doImport();break;
     case 'cancelimport':pendingImport=null;$('importConfirm').hidden=true;$('importFile').value='';break;
+    case 'peek':state.demoPeek=true;render();break;
     case 'log':{state.quickCat=id;const c=catById(id);state.qType=c.group==='installment'?'installment':c.group==='fixed'?'recurring':'once';renderChips();
       $('slip').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
       $({once:'qAmt',installment:'iName',recurring:'rName'}[state.qType]).focus({preventScroll:true});break;}
@@ -1414,7 +1439,14 @@ async function doImport(){
   try{await backend.importAll(pendingImport);pendingImport=null;$('importConfirm').hidden=true;$('importFile').value='';$('dataTools').open=false;toast('นำเข้าข้อมูลแล้ว');}
   catch(e){showErr(e);}
 }
-let auth=null;
+let auth=null,fdbRef=null;
+async function wipeAndReload(doSignOut){
+  try{if(doSignOut&&auth)await signOut(auth);}catch(e){}
+  try{if(fdbRef){await terminate(fdbRef);await clearIndexedDbPersistence(fdbRef);}}catch(e){}
+  try{Object.keys(localStorage).filter(k=>k.startsWith('sbk')).forEach(k=>localStorage.removeItem(k));}catch(e){}
+  try{sessionStorage.clear();}catch(e){}
+  location.reload();
+}
 function login(){
   if(!auth)return;const p=new GoogleAuthProvider();
   signInWithPopup(auth,p).catch(e=>{if(e&&(e.code==='auth/popup-blocked'||e.code==='auth/operation-not-supported-in-this-environment'))signInWithRedirect(auth,p);else if(e&&e.code!=='auth/popup-closed-by-user'){const b=$('errBox');b.hidden=false;b.textContent='เข้าสู่ระบบไม่สำเร็จ ('+(e.code||'error')+')'+(e.code==='auth/unauthorized-domain'?' — เพิ่มชื่อเว็บนี้ใน Firebase → Authentication → Settings → Authorized domains':'');}});
@@ -1425,6 +1457,7 @@ function renderAuth(u){
   box.innerHTML=u?`${u.photoURL?`<img src="${esc(u.photoURL)}" alt="" referrerpolicy="no-referrer">`:''}<span>${esc((u.displayName||u.email||'').split(' ')[0])}</span><button class="link" data-act="logout">ออกจากระบบ</button>`
     :`<button class="btn sm" data-act="login">เข้าสู่ระบบด้วย Google</button>`;
 }
+{const w=document.createElement('button');w.className='link';w.dataset.act='wipe';w.textContent='ใช้เครื่องร่วมกับคนอื่น? ล้างข้อมูลที่ค้างในเครื่องนี้';const n=document.querySelector('.login-card .note');n&&n.after(w);}
 $('logoCat').innerHTML=catSVG(36);$('verTag').textContent=`v${APP_VERSION} · อัปเดต ${APP_DATE}`;$('verTagLogin').textContent=`v${APP_VERSION}`;$('chlog').innerHTML=CHANGELOG.map(([v,t])=>`<div><b>v${v}</b><span>${t}</span></div>`).join('');$('loginCat').innerHTML=catSVG(150,true);
 toDemo();state.mode='loading';render();
 if(!CONFIGURED){
@@ -1432,10 +1465,11 @@ if(!CONFIGURED){
 }else{
   const app=initializeApp(firebaseConfig);
   auth=getAuth(app);
-  const fdb=initializeFirestore(app,{localCache:persistentLocalCache({tabManager:persistentMultipleTabManager()})});
+  const fdb=initializeFirestore(app,{localCache:persistentLocalCache({tabManager:persistentMultipleTabManager()})});fdbRef=fdb;
   onAuthStateChanged(auth,u=>{
     if(backend&&backend.stop)backend.stop();
     renderAuth(u);state.prevLogs={key:null,logs:[]};state.monthCache={};state.ahead={};state.aheadLoading={};
+    toDemo();state.logs=[];state.paid=[];state.demoPeek=false;state.demoHint=false;
     document.body.classList.toggle('signed-out',!u);
     if(u){backend=fbBackend(fdb,u.uid);state.mode='loading';backend.start();}
     else{backend=null;toDemo();render();}
